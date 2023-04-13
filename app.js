@@ -1,9 +1,10 @@
 const express = require('express');
 const app = express();
+const cors=require("cors")
 const errorMiddleware = require('./middleware/error.js')
 const cookieParser = require("cookie-parser");
 app.use(express.json());
-
+app.use(cors())
 app.use(express.urlencoded({
     extended: true,
 }));
