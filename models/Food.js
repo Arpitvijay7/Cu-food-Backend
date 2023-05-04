@@ -24,7 +24,7 @@ const foodSchema = mongoose.Schema({
        ref : 'Shop',
        required: [true, 'Please enter in which shop you want to enter this food item']
     },
-    images:
+    image:
     {
         path:String,
         contentType:String,
