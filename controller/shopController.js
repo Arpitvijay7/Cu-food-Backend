@@ -54,7 +54,6 @@ exports.createShop = catchAsyncError(async (req, res, next) => {
         "shopImages",
         req.file.filename
       ),
-
       contentType: req.file.mimetype,
     };
 

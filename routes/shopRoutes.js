@@ -16,5 +16,6 @@ router.route('/getShopDetail/:id').get(getShopDetail)
 
 router.route('/updateShop/:id').post(isAuthenticatedUser,authorizedRoles('admin'),updateShop)
 
+
 module.exports = router;
 

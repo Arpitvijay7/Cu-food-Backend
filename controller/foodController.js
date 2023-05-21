@@ -42,10 +42,6 @@ const upload = multer({
 // adding a food item to menu   --Admin
 exports.addFoodItem = catchAsyncError(async (req, res, next) => {
     upload(req, res, async (err) => {
-    console.log(req.body);
-    console.log(req.file);
-
-      
     if (err) {
       return next(err);
     }
@@ -66,6 +62,12 @@ exports.addFoodItem = catchAsyncError(async (req, res, next) => {
       
     req.body.image = img_obj;
 
+    if (req.body.DualOptions) {
+      if (!('price_full' in req.body)) {
+         return next(new ErrorHandler('Please provide a price of large item also',404))
+      }
+    }
+      
     const food = await Food.create(req.body);
 
     if (!food) {

@@ -10,9 +10,17 @@ const foodSchema = mongoose.Schema({
         type: String,
         required: [true, "yy enter Food Despriction"],
     },
-    price: {
+    DualOptions :{
+        type: Boolean,
+        default: false,
+    },
+    price_half: {
         type: Number,
         required: [true, "Please enter Food Price"],
+        maxLenght: [8, "Price cannot exceed 8 characters"],
+    },
+    price_full: {
+        type: Number,
         maxLenght: [8, "Price cannot exceed 8 characters"],
     },
     rating: {
