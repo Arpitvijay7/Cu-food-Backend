@@ -1,6 +1,7 @@
 const nodeMailer = require("nodemailer");
+const catchAsyncError = require("../middleware/catchAsyncError");
 
-const sendEmail = async (options) => {
+const sendEmail = catchAsyncError(async (options) => {
   const transporter = nodeMailer.createTransport({
     
     service: process.env.SMPT_SERVICE,
@@ -18,6 +19,6 @@ const sendEmail = async (options) => {
   };
 
   await transporter.sendMail(mailOptions);
-};
+}) 
 
 module.exports = sendEmail;

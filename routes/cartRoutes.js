@@ -17,5 +17,4 @@ router.route('/increaseQuantity/:id').get(isAuthenticatedUser , increaseQuantity
 
 router.route('/decreaseQuantity/:id').get(isAuthenticatedUser , decreaseQuantity)
 
-
 module.exports = router;

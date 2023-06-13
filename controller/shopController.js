@@ -77,6 +77,8 @@ exports.getAllshops = catchAsyncError(async (req, res, next) => {
   const resultPerPage = 10;
   const totalShops = await Shop.countDocuments();
 
+  console.log(req.user);
+
   const apiFeatures = new ApiFeatures(Shop.find({}), req.query).search();
 
   const shops = await apiFeatures.query;

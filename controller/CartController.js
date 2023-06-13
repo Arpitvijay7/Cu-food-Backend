@@ -194,6 +194,7 @@ exports.increaseQuantity = catchAsyncError(async (req, res, next) => {
   if (!cart) {
     return next(new ErrorHandler(`No such cart found`, 400));
   }
+
   let check = 1;
   for (let i = 0; i < cart.Food.length; i++) {
     if (cart.Food[i]._id == foodId) {
