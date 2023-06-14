@@ -40,11 +40,13 @@ const Shop = require("./routes/shopRoutes");
 const user = require("./routes/userRoutes");
 const Food = require("./routes/foodRoutes");
 const Cart = require("./routes/cartRoutes");
+const Order = require("./routes/orderRoutes");
 
 app.use("/api/vi/shop", Shop);
 app.use("/api/vi/user", user);
 app.use("/api/vi/food", Food);
 app.use("/api/vi/cart", Cart);
+app.use("/api/vi/order", Order);
 
 app.use(errorMiddleware);
 
