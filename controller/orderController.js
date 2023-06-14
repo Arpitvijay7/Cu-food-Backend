@@ -50,3 +50,59 @@ exports.verifyOrder = catchAsyncError(async (req, res) => {
     res.json({ isVerified: false });
   }
 });
+
+// get logged in user  Orders
+exports.myOrders = catchAsyncError(async (req, res) => {
+  const orders = await Order.find({ user: req.user._id });
+
+  res.status(200).json({
+    success: true,
+    orders,
+  });
+});
+
+// get Single Order
+exports.getSingleOrder = catchAsyncError(async (req, res, next) => {
+  const order = await Order.findById(req.params.id);
+
+  if (!order) {
+    return next(new ErrorHandler("Order not found with this Id", 404));
+  }
+
+  res.status(200).json({
+    success: true,
+    order,
+  });
+});
+
+// get all Orders -- Admin
+exports.getAllOrders = catchAsyncError(async (req, res) => {
+  const orders = await Order.find();
+
+  let totalAmount = 0;
+
+  orders.forEach((order) => {
+    totalAmount += order.totalPrice;
+  });
+
+  res.status(200).json({
+    success: true,
+    totalAmount,
+    orders,
+  });
+});
+
+// delete Order -- Admin
+exports.deleteOrder = catchAsyncError(async (req, res, next) => {
+  const order = await Order.findById(req.params.id);
+
+  if (!order) {
+    return next(new ErrorHandler("Order not found with this Id", 404));
+  }
+
+  await order.remove();
+
+  res.status(200).json({
+    success: true,
+  });
+});
