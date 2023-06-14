@@ -1,5 +1,5 @@
 const catchAsyncError = require("../middleware/catchAsyncError");
-const ApiFeatures = require("../utils/apiFeatures");
+const ApiFeatures = require("../utils/apifeatures");
 const ErrorHandler = require("../utils/ErrorHandler");
 const Shop = require("../models/Shop");
 const Food = require("../models/Food");
