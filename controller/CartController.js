@@ -14,6 +14,7 @@ exports.getAllItemsFromCart = catchAsyncError(async (req, res, next) => {
   res.status(200).json({
     message: `Your Cart Items`,
     cart: cart.Food,
+    totalSum: cart.totalSum,
   });
 });
 
@@ -55,6 +56,20 @@ exports.addToCart = catchAsyncError(async (req, res, next) => {
     return next(new ErrorHandler(`Internal Server Error`, 400));
   }
 
+  for (let i = 0; i < cart.Food.length; ++i) {
+    if (cart.Food[i].foodId == id && option == cart.Food[i].Option) {
+      cart.Food[i].quantity += 1;
+      cart.totalSum += cart.Food[i].price;
+      await cart.save();
+
+      return res.status(200).json({
+        message: `Item Successfully added mmm`,
+        Cart: cart,
+        totalSum: cart.totalSum,
+      });
+    }
+  }
+
   let itemPrice = 0;
 
   if (option == "half") {
@@ -76,7 +91,9 @@ exports.addToCart = catchAsyncError(async (req, res, next) => {
     Option: option,
     image: food.image.path,
     quantity: 1,
+    foodId: food.id,
   };
+
 
   cart.Food.push(foodItem);
   await cart.save();
@@ -84,6 +101,7 @@ exports.addToCart = catchAsyncError(async (req, res, next) => {
   res.status(200).json({
     message: `Item Successfully added in Cart`,
     Cart: cart,
+    totalSum: cart.totalSum,
   });
 });
 
@@ -98,7 +116,7 @@ exports.removefromcart = catchAsyncError(async (req, res, next) => {
   let foodItem;
   let check = 1;
   for (let i = 0; i < userCart.Food.length; i++) {
-    if (userCart.Food[i]._id == foodId) {
+    if (userCart.Food[i].foodId == foodId) {
       foodItem = userCart.Food[i];
       userCart.Food.splice(i, 1);
       check = 0;
@@ -126,6 +144,7 @@ exports.removefromcart = catchAsyncError(async (req, res, next) => {
     success: true,
     message: `Product removed from cart Successfully`,
     userCart,
+    totalSum: userCart.totalSum,
   });
 });
 
@@ -146,7 +165,7 @@ exports.replaceFromCart = catchAsyncError(async (req, res, next) => {
   if (!food.DualOptions && req.params.option == "full") {
     return next(
       new ErrorHandler(
-        `Their is no option to choose large quautity in this meal`,
+        `Their is no option to choose full quautity in this meal`,
         404
       )
     );
@@ -174,6 +193,7 @@ exports.replaceFromCart = catchAsyncError(async (req, res, next) => {
     price: itemPrice,
     Option: option,
     image: food.image.path,
+    foodId: food.id,
     quantity: 1,
   };
 
@@ -184,12 +204,15 @@ exports.replaceFromCart = catchAsyncError(async (req, res, next) => {
   res.status(200).json({
     message: `Items replaced in cart Sucessfully`,
     cart,
+    totalSum: cart.totalSum,
   });
 });
 
 exports.increaseQuantity = catchAsyncError(async (req, res, next) => {
   const cart = await Cart.findOne({ userId: req.user._id });
-  const foodId = req.params.id;
+  const FoodId = req.params.id;
+
+  const { option } = req.query;
 
   if (!cart) {
     return next(new ErrorHandler(`No such cart found`, 400));
@@ -197,29 +220,37 @@ exports.increaseQuantity = catchAsyncError(async (req, res, next) => {
 
   let check = 1;
   for (let i = 0; i < cart.Food.length; i++) {
-    if (cart.Food[i]._id == foodId) {
+    if (cart.Food[i].foodId == FoodId && cart.Food[i].Option == option) {
       cart.Food[i].quantity += 1;
-      cart.totalSum +=  cart.Food[i].price;
+      cart.totalSum += cart.Food[i].price;
       check = 0;
+      break;
     }
   }
-  
+
   if (check) {
-    return next(new ErrorHandler(`No food item found of this type to increase quantity`,404))
+    return next(
+      new ErrorHandler(
+        `No food item found of this type to increase quantity`,
+        404
+      )
+    );
   }
 
   await cart.save();
-  
+
   res.json({
     message: `quantity increased successfully`,
-    cart
-  })
-  
+    cart,
+    totalSum: cart.totalSum,
+  });
 });
 
 exports.decreaseQuantity = catchAsyncError(async (req, res, next) => {
   const cart = await Cart.findOne({ userId: req.user._id });
-  const foodId = req.params.id;
+  const FoodId = req.params.id;
+
+  const { option } = req.query;
 
   if (!cart) {
     return next(new ErrorHandler(`No such cart found`, 400));
@@ -227,12 +258,12 @@ exports.decreaseQuantity = catchAsyncError(async (req, res, next) => {
 
   let check = 1;
   for (let i = 0; i < cart.Food.length; i++) {
-    if (cart.Food[i]._id == foodId) {
+    if (cart.Food[i].foodId == FoodId && cart.Food[i].Option == option) {
       cart.Food[i].quantity -= 1;
-      cart.totalSum -=  cart.Food[i].price;
+      cart.totalSum -= cart.Food[i].price;
       check = 0;
 
-      if (cart.Food[i].quantity == 0 ) {
+      if (cart.Food[i].quantity == 0) {
         cart.Food.splice(i, 1);
       }
 
@@ -242,17 +273,23 @@ exports.decreaseQuantity = catchAsyncError(async (req, res, next) => {
       }
     }
   }
-  
+
   if (check) {
-    return next(new ErrorHandler(`No food item found of this type to decrease quantity`,404))
+    return next(
+      new ErrorHandler(
+        `No food item found of this type to decrease quantity`,
+        404
+      )
+    );
   }
 
   if (cart.totalSum < 0) cart.totalSum = 0;
-  
+
   await cart.save();
-  
+
   res.json({
     message: `quantity decreased successfully`,
-    cart
-  })
-})
+    cart,
+    totalSum: cart.totalSum,
+  });
+});

@@ -21,7 +21,12 @@ const CartSchema = new mongoose.Schema({
       quantity : {
          type:Number,
          default: 1,
+      },
+      foodId :{
+         type : mongoose.Schema.ObjectId,
+         ref : "Food"
       }
+
    }],
     userId: {
       type: mongoose.Schema.ObjectId,
