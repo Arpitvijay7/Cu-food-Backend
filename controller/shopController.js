@@ -46,6 +46,10 @@ exports.createShop = catchAsyncError(async (req, res, next) => {
       return next(err);
     }
 
+    if (!req.file) {
+      return next(new ErrorHandler(`UnSupported Type:-  Only jpeg jpg and png images are supported `,404));
+    }
+
     img_obj = {
       path: path.join(
         __dirname,

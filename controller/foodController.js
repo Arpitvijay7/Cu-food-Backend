@@ -45,6 +45,11 @@ exports.addFoodItem = catchAsyncError(async (req, res, next) => {
     if (err) {
       return next(err);
     }
+    console.log(req.file);
+
+    if (!req.file) {
+      return next(new ErrorHandler(`UnSupported Type:-  Only jpeg jpg and png images are supported `,404));
+    }
 
     req.body.shop = req.params.id;
         
