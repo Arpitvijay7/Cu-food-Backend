@@ -5,8 +5,8 @@ const User = require("../models/userModel");
 
 exports.isAuthenticatedUser = catchAsyncError(async (req, res, next) => {
   let { token } = req.cookies;
-
-  // let googleToken = req.cookies["connect.sid"];
+  
+  let googleToken = req.cookies["connect.sid"];
   
   if (!token && !googleToken) {
     return next(
