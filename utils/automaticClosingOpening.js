@@ -7,7 +7,6 @@ exports.automaticClosingOpening = catchAsyncError(async (req, res, next) => {
   const time = date.getHours() + ":" + date.getMinutes();
   console.log(time);
   for (let i = 0; i < shop.length; i++) {
-    console.log(shop[i].openAt , "  " ,shop[i].closeAt , " ", time );
     if (time > shop[i].closeAt) {
       shop[i].status = "closed";
       console.log('first');
