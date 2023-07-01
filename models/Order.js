@@ -19,10 +19,10 @@ const orderSchema = new mongoose.Schema({
   delivery: Boolean,
 
   deliveryAddress: {
-    hostelName: {
+    hostel: {
       type: String,
     },
-    roomNo: {
+    room: {
       type: Number,
     },
   },
@@ -49,8 +49,16 @@ const orderSchema = new mongoose.Schema({
         type: Number,
         default: 1,
       },
+      foodId: {
+        type: mongoose.Schema.ObjectId,
+        ref: "Food",
+      },
     },
   ],
+  shop : {
+    type: mongoose.Schema.ObjectId,
+    ref : "Shop",
+  },
   totalPrice: Number,
   paidAt: {
     type: Date,
@@ -60,7 +68,7 @@ const orderSchema = new mongoose.Schema({
   orderStatus: {
     type: String,
     required: true,
-    default: "Processing",
+    default: "Preparing",
   },
   deliveredAt: Date,
   createdAt: {

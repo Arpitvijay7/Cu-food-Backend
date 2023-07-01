@@ -5,6 +5,7 @@ const Shop = require("../models/Shop");
 const Food = require("../models/Food");
 const multer = require("multer");
 const path = require("path");
+const { dataUri } = require("../utils/dataUri");
 
 // multer diskStrorage
 const Storage = multer.diskStorage({
@@ -49,6 +50,10 @@ exports.createShop = catchAsyncError(async (req, res, next) => {
     if (!req.file) {
       return next(new ErrorHandler(`UnSupported Type:-  Only jpeg jpg and png images are supported `,404));
     }
+    
+    // console.log(req.file);
+    // const uri = dataUri(req.file);
+    // console.log(uri);
 
     img_obj = {
       path: path.join(
@@ -102,7 +107,6 @@ exports.deleteShop = catchAsyncError(async (req, res, next) => {
   if (!shop) {
     return next(new ErrorHandler(`No Such Shop found`, 404));
   }
-  console.log(shop);
 
   await Shop.deleteOne({ _id: id });
 

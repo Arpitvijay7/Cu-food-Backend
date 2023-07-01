@@ -15,7 +15,7 @@ exports.connectPassport = catchAsyncError(() => {
         callbackURL: process.env.GOOGLE_CALLBACK_URL,
       },
       async function (accessToken, refreshToken, profile, done) {
-        console.log(profile);
+  
         const user = await User.findOne({
           googleId: profile.id,
         });
@@ -28,7 +28,6 @@ exports.connectPassport = catchAsyncError(() => {
             googleId: profile.id,
           });
 
-          console.log(profile.id);
           await newUser.save();
 
           return done(null, newUser);

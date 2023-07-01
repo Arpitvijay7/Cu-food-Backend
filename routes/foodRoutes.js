@@ -11,3 +11,4 @@ router.route('/deleteFromMenu/:id/:id1').delete(isAuthenticatedUser,authorizedRo
 router.route('/updateFood/:id').post(isAuthenticatedUser,authorizedRoles('admin'),updateFood)
 
 module.exports = router
+

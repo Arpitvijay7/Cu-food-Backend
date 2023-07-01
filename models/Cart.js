@@ -26,7 +26,6 @@ const CartSchema = new mongoose.Schema({
          type : mongoose.Schema.ObjectId,
          ref : "Food"
       }
-
    }],
     userId: {
       type: mongoose.Schema.ObjectId,

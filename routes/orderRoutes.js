@@ -6,6 +6,7 @@ const {
   deleteOrder,
   getAllOrders,
   getSingleOrder,
+  newOrder,
 } = require("../controller/orderController");
 const { isAuthenticatedUser, authorizedRoles } = require("../middleware/auth");
 
@@ -15,9 +16,11 @@ router.route("/checkout").post(isAuthenticatedUser, checkout);
 
 router.route("/verifyOrder").post(isAuthenticatedUser, verifyOrder);
 
-router.route("/me").get(isAuthenticatedUser, myOrders);
+router.route('/newOrder').post(isAuthenticatedUser , newOrder)
 
-router.route("/myOrder/:id").get(isAuthenticatedUser, getSingleOrder);
+router.route("/myOrders").get(isAuthenticatedUser, myOrders);
+
+router.route("/getOrder/:id").get(isAuthenticatedUser, getSingleOrder);
 
 router
   .route("/remove/:id")

@@ -2,6 +2,8 @@ const Order = require("../models/Order");
 const catchAsyncError = require("../middleware/catchAsyncError");
 const ErrorHandler = require("../utils/ErrorHandler");
 const Razorpay = require("razorpay");
+const crypto = require("crypto");
+const Cart = require("../models/Cart");
 
 // Create a new order
 exports.checkout = catchAsyncError(async (req, res) => {
@@ -13,7 +15,7 @@ exports.checkout = catchAsyncError(async (req, res) => {
   });
 
   const uniqueOrderReceipt = productId + phoneNumber;
-  console.log(uniqueOrderReceipt);
+
   instance.orders.create(
     {
       amount: Number(totalPrice * 100), // amount in the smallest currency unit ,
@@ -32,7 +34,6 @@ exports.checkout = catchAsyncError(async (req, res) => {
 
 exports.verifyOrder = catchAsyncError(async (req, res) => {
   const { checkoutRes, orderId } = req.body;
-  console.log(req.body);
 
   const hmac = crypto.createHmac("sha256", process.env.RAZOR_KEY_SECRET);
 
@@ -40,16 +41,64 @@ exports.verifyOrder = catchAsyncError(async (req, res) => {
   //HMAC-SHA256:- This is just a naming convention, HMAC-X means the X cryptographic
   //function has been used to calculate this hash
   const generatedSignature = hmac.digest("hex");
-  console.log(generatedSignature);
-  console.log(checkoutRes);
 
   if (generatedSignature == checkoutRes.razorpay_signature) {
     //payment is successful, and response has been came from authentic source.
-    res.status(200).json({ success: true, isVerified: true });
+    const { deliveryCheckbox, address, paymentInfo } = req.body;
+
+    const cart = await Cart.findOne({ userId: req.user._id });
+
+    if (!cart) {
+      return next(new ErrorHandler(`No such cart found`, 400));
+    }
+    if (!req.user) {
+      return next(new ErrorHandler("Login first to place the order", 401));
+    }
+    let deliveryAddress = undefined;
+    let Otp = undefined;
+    if (deliveryCheckbox) {
+      deliveryAddress = address;
+    } else {
+      const random = Math.floor(Math.random() * 1000000);
+      Otp = random;
+    }
+    img_test =
+      "https://images-gmi-pmc.edge-generalmills.com/320bc659-12a4-4199-a07f-15b746e29677.jpg";
+    let fooditmes = cart.Food;
+    
+    const orderItems = {
+      user: req.user._id,
+      paymentInfo,
+      delivery: deliveryCheckbox,
+      deliveryAddress,
+      Otp,
+      OrderItems: fooditmes,
+      totalPrice: cart.totalSum,
+      paidAt: Date.now(),
+      shop: cart.shop,
+    };
+
+    const order = await Order.create(orderItems);
+
+    if (deliveryCheckbox) {
+      return res.status(200).json({
+        success: true,
+        order,
+      });
+    } else {
+      return res.status(200).json({
+        success: true,
+        order,
+        Otp,
+      });
+    }
   } else {
-    res.json({ isVerified: false });
+    res.json({ success: false, message: "Payment Failed" });
   }
 });
+
+//Making a new Order after payment
+exports.newOrder = catchAsyncError(async (req, res) => {});
 
 // get logged in user  Orders
 exports.myOrders = catchAsyncError(async (req, res) => {

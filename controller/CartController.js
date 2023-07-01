@@ -63,7 +63,7 @@ exports.addToCart = catchAsyncError(async (req, res, next) => {
       await cart.save();
 
       return res.status(200).json({
-        message: `Item Successfully added mmm`,
+        message: `Item Successfully added in Cart`,
         Cart: cart,
         totalSum: cart.totalSum,
       });

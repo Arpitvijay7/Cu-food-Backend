@@ -1,7 +1,7 @@
 const express = require("express");
 const passport = require("passport");
 
-const { isAuthenticatedUser } = require("../middleware/auth");
+const { isAuthenticatedUser, authorizedRoles } = require("../middleware/auth");
 const { googleLogout } = require("../utils/provider");
 
 const {
@@ -9,6 +9,10 @@ const {
   loginUser,
   logoutUser,
   forgotPassword,
+  getAllUsers,
+  getLoggedInUser,
+  removeUser,
+  makeUserAdmin
 } = require("../controller/userController");
 
 const router = express.Router();
@@ -16,6 +20,10 @@ const router = express.Router();
 router.route("/new").post(registerUser);
 
 router.route("/login").post(loginUser);
+
+router.route("/logedInUser").get(isAuthenticatedUser, getLoggedInUser);
+
+router.route('/remove/:id').delete(isAuthenticatedUser , authorizedRoles('admin') , removeUser)
 
 router.get(
   "/googleAuth",
@@ -31,6 +39,10 @@ router.get(
     successRedirect: process.env.FRONTEND_URL,
   })
 );
+
+router.route('/getAllUsers').get(isAuthenticatedUser , authorizedRoles('admin') , getAllUsers)
+
+router.route('/makeUserAdmin/:id').put(isAuthenticatedUser , authorizedRoles('admin') , makeUserAdmin)
 
 router.get('/googleLogout',isAuthenticatedUser,googleLogout);
 

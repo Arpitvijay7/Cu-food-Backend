@@ -20,6 +20,19 @@ const shopSchema = new mongoose.Schema({
        ref: "Food",
     }
     ],
+
+    status: {
+        type: String,
+        default: "closed",
+    },
+    openAt: {
+        type: String,
+        default: "9:00",
+    },
+    closeAt: {
+        type: String,
+        default: "21:00",
+    },
     createdAt: {
         type: Date,
         default: Date.now,
