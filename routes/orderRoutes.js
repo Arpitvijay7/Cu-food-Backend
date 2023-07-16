@@ -7,6 +7,8 @@ const {
   getAllOrders,
   getSingleOrder,
   newOrder,
+  getAllActiveOrders,
+  getAllDelieveredOrders
 } = require("../controller/orderController");
 const { isAuthenticatedUser, authorizedRoles } = require("../middleware/auth");
 
@@ -15,8 +17,6 @@ const router = express.Router();
 router.route("/checkout").post(isAuthenticatedUser, checkout);
 
 router.route("/verifyOrder").post(isAuthenticatedUser, verifyOrder);
-
-router.route('/newOrder').post(isAuthenticatedUser , newOrder)
 
 router.route("/myOrders").get(isAuthenticatedUser, myOrders);
 
@@ -29,5 +29,14 @@ router
 router
   .route("/allOrders")
   .get(isAuthenticatedUser, authorizedRoles("admin"), getAllOrders);
+
+router
+  .route("/getAllActiveOrders")
+  .get(isAuthenticatedUser, authorizedRoles("admin"), getAllActiveOrders);
+
+
+router
+.route("/getAllDelieveredOrders")
+.get(isAuthenticatedUser, authorizedRoles("admin"), getAllDelieveredOrders);
 
 module.exports = router;

@@ -5,98 +5,67 @@ const ApiFeatures = require("../utils/apifeatures");
 const ErrorHandler = require("../utils/ErrorHandler");
 const multer = require("multer");
 const path = require("path");
-
-// multer diskStrorage
-const Storage = multer.diskStorage({
-  destination: "Uploads/menuImages",
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random());
-    cb(
-      null,
-      file.fieldname +
-        "-" +
-        uniqueSuffix +
-        "." +
-        path.extname(file.originalname)
-    );
-  },
-});
-
-const filefilter = (req, file, cb) => {
-  if (
-    file.mimetype === "image/jpeg" ||
-    file.mimetype === "image/png" ||
-    file.mimetype === "image/jpg"
-  ) {
-    cb(null, true);
-  } else {
-    cb(null, false);
-  }
-};
-
-const upload = multer({
-  storage: Storage,
-  fileFilter: filefilter,
-}).single("image");
+const cloudinary = require("cloudinary");
+const { getdataUri } = require("../utils/dataUri");
 
 // adding a food item to menu   --Admin
 exports.addFoodItem = catchAsyncError(async (req, res, next) => {
-    upload(req, res, async (err) => {
-    if (err) {
-      return next(err);
-    }
 
-    if (!req.file) {
-      return next(new ErrorHandler(`UnSupported Type:-  Only jpeg jpg and png images are supported `,404));
-    }
+  if (!req.file) {
+    return next(
+      new ErrorHandler(
+        `UnSupported Type:-  Only jpeg jpg and png images are supported `,
+        404
+      )
+    );
+  }
 
-    req.body.shop = req.params.id;
-        
-    img_obj = {
-      path: path.join(
-        __dirname,
-        "..",
-        "Uploads",
-        "menuImages",
-        req.file.filename
-        ),
-        
-      contentType: req.file.mimetype,
-    };
-      
-    req.body.image = img_obj;
+  req.body.shop = req.params.id;
 
-    if (req.body.DualOptions) {
-      if (!('price_full' in req.body)) {
-         return next(new ErrorHandler('Please provide a price of large item also',404))
-      }
-    }
-      
-    const food = await Food.create(req.body);
+  const fileuri = getdataUri(req.file);
 
-    if (!food) {
+  const myCloud = await cloudinary.v2.uploader.upload(fileuri.content);
+
+  img_obj = {
+    public_id: myCloud.public_id,
+    path: myCloud.secure_url,
+    contentType: req.file.mimetype,
+  };
+
+  req.body.image = img_obj;
+
+  if (req.body.DualOptions) {
+    if (!("price_full" in req.body)) {
       return next(
-        new ErrorHandler(
-          `Please enter all details for creating a new food item`,
-          404
-        )
+        new ErrorHandler("Please provide a price of large item also", 404)
       );
     }
+  }
 
-    const shop = await Shop.findById(req.params.id);
+  const food = await Food.create(req.body);
 
-    if (!shop) {
-      return next(new ErrorHandler(`No such shop found`, 404));
-    }
+  if (!food) {
+    return next(
+      new ErrorHandler(
+        `Please enter all details for creating a new food item`,
+        404
+      )
+    );
+  }
 
-    shop.menu.push(food._id);
-    await shop.save();
+  const shop = await Shop.findById(req.params.id);
 
-    res.status(200).json({
-      message: "food added successfully in shop",
-      food,
-      shop,
-    });
+  if (!shop) {
+    return next(new ErrorHandler(`No such shop found`, 404));
+  }
+
+  shop.menu.push(food._id);
+  await shop.save();
+
+  res.status(200).json({
+    message: "food added successfully in shop",
+    food,
+    shop,
   });
 });
 

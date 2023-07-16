@@ -97,9 +97,6 @@ exports.verifyOrder = catchAsyncError(async (req, res) => {
   }
 });
 
-//Making a new Order after payment
-exports.newOrder = catchAsyncError(async (req, res) => {});
-
 // get logged in user  Orders
 exports.myOrders = catchAsyncError(async (req, res) => {
   const orders = await Order.find({ user: req.user._id });
@@ -140,6 +137,61 @@ exports.getAllOrders = catchAsyncError(async (req, res) => {
     orders,
   });
 });
+
+// update Order Status -- Admin
+exports.updateOrderStatus = catchAsyncError(async (req, res) => {
+  const order = await Order.findById(req.params.id);
+
+  if (!order) {
+    return next(new ErrorHandler("Order not found with this Id", 404));
+  }
+
+  if (order.orderStatus === "Delivered") {
+    return next(new ErrorHandler("You have already delivered this order", 400));
+  }
+
+  order.orderStatus = req.body.status;
+
+  await order.save();
+
+  res.status(200).json({
+    success: true,
+  });
+})
+
+//get All Active Orders -- Admin
+exports.getAllActiveOrders = catchAsyncError(async (req, res) => {
+  const orders = await Order.find({ orderStatus: "Preparing" });
+
+  let totalAmount = 0;
+
+  orders.forEach((order) => {
+    totalAmount += order.totalPrice;
+  });
+
+  res.status(200).json({
+    success: true,
+    totalAmount,
+    orders,
+  });
+})
+
+//get All Active Orders -- Admin
+exports.getAllDelieveredOrders = catchAsyncError(async (req, res) => {
+  const orders = await Order.find({ orderStatus: "Delivered" });
+
+  let totalAmount = 0;
+
+  orders.forEach((order) => {
+    totalAmount += order.totalPrice;
+  });
+
+  res.status(200).json({
+    success: true,
+    totalAmount,
+    orders,
+  });
+})
 
 // delete Order -- Admin
 exports.deleteOrder = catchAsyncError(async (req, res, next) => {

@@ -13,6 +13,7 @@ const shopSchema = new mongoose.Schema({
     image: 
     {
         path:String,
+        public_id : String,
         contentType:String,
     },
     menu : [{
@@ -27,7 +28,7 @@ const shopSchema = new mongoose.Schema({
     },
     openAt: {
         type: String,
-        default: "9:00",
+        default: "09:00",
     },
     closeAt: {
         type: String,

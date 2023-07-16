@@ -5,79 +5,74 @@ const Shop = require("../models/Shop");
 const Food = require("../models/Food");
 const multer = require("multer");
 const path = require("path");
-const { dataUri } = require("../utils/dataUri");
+const { dataUri, getdataUri } = require("../utils/dataUri");
+const cloudinary = require('cloudinary');
 
 // multer diskStrorage
-const Storage = multer.diskStorage({
-  destination: "Uploads/shopImages",
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random());
-    cb(
-      null,
-      file.fieldname +
-        "-" +
-        uniqueSuffix +
-        "." +
-        path.extname(file.originalname)
-    );
-  },
-});
+// const Storage = multer.diskStorage({
+//   destination: "Uploads/shopImages",
+//   filename: (req, file, cb) => {
+//     const uniqueSuffix = Date.now() + "-" + Math.round(Math.random());
+//     cb(
+//       null,
+//       file.fieldname +
+//         "-" +
+//         uniqueSuffix +
+//         "." +
+//         path.extname(file.originalname)
+//     );
+//   },
+// });
 
-const filefilter = (req, file, cb) => {
-  if (
-    file.mimetype === "image/jpeg" ||
-    file.mimetype === "image/png" ||
-    file.mimetype === "image/jpg"
-  ) {
-    cb(null, true);
-  } else {
-    cb(null, false);
-  }
-};
+// const filefilter = (req, file, cb) => {
+//   if (
+//     file.mimetype === "image/jpeg" ||
+//     file.mimetype === "image/png" ||
+//     file.mimetype === "image/jpg"
+//   ) {
+//     cb(null, true);
+//   } else {
+//     cb(null, false);
+//   }
+// };
 
-const upload = multer({
-  storage: Storage,
-  fileFilter: filefilter,
-}).single("image");
+// const upload = multer({
+//   storage: Storage,
+//   fileFilter: filefilter,
+// }).single("image");
 
 // Create a shop
 exports.createShop = catchAsyncError(async (req, res, next) => {
-  upload(req, res, async (err) => {
-    if (err) {
-      return next(err);
-    }
+  if (!req.file) {
+    return next(
+      new ErrorHandler(
+        `UnSupported Type:-  Only jpeg jpg and png images are supported `,
+        404
+      )
+    );
+  }
 
-    if (!req.file) {
-      return next(new ErrorHandler(`UnSupported Type:-  Only jpeg jpg and png images are supported `,404));
-    }
-    
-    // console.log(req.file);
-    // const uri = dataUri(req.file);
-    // console.log(uri);
+  const fileuri = getdataUri(req.file);
 
-    img_obj = {
-      path: path.join(
-        __dirname,
-        "..",
-        "Uploads",
-        "shopImages",
-        req.file.filename
-      ),
-      contentType: req.file.mimetype,
-    };
+  const myCloud = await cloudinary.v2.uploader.upload(fileuri.content);
 
-    req.body.image = img_obj;
-    const shop = await Shop.create(req.body);
+  img_obj = {
+    public_id: myCloud.public_id,
+    path: myCloud.secure_url,
+    contentType: req.file.mimetype,
+  };
 
-    if (!shop) {
-      return next(
-        new ErrorHandler(`Please enter all information of your shop`, 404)
-      );
-    }
-    res.status(201).json({
-      message: `Shop created successfully`,
-      shop,
-    });
+  req.body.image = img_obj;
+  const shop = await Shop.create(req.body);
+
+  if (!shop) {
+    return next(
+      new ErrorHandler(`Please enter all information of your shop`, 404)
+    );
+  }
+  res.status(201).json({
+    message: `Shop created successfully`,
+    shop,
   });
 });
 

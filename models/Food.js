@@ -35,6 +35,7 @@ const foodSchema = mongoose.Schema({
     image:
     {
         path:String,
+        public_id:String,
         contentType:String,
     },
     category: {
