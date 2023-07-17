@@ -2,6 +2,11 @@ const app = require("./app");
 const dotenv = require("dotenv");
 const cloudinary = require("cloudinary");
 const connectDatabase = require("./config/database");
+const socketIO = require('socket.io');
+const http = require('http')
+
+const server = http.createServer(app);
+const io = socketIO(server);
 
 // Config Path
 dotenv.config({ path: "./config/config.env" });
@@ -23,8 +28,10 @@ process.on("uncaughtException", (err) => {
 
 connectDatabase();
 
-const server = app.listen(process.env.PORT, () => {
-  console.log(`Server Connected to port ${process.env.PORT}`);
+const port = process.env.PORT || 4000; // Use the environment variable PORT or fallback to 3001
+
+server.listen(port, () => {
+  console.log(`Server is running on http://localhost:${port}`);
 });
 
 // Handling Unhandled Rejection Errors
