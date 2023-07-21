@@ -41,12 +41,6 @@ app.use(passport.session());
 
 connectPassport();
 // Routes Imports
-
-// Automactically closing and opening the shop
-setInterval(() => {
-  automaticClosingOpening();
-}, 1000);
-
 const Shop = require("./routes/shopRoutes");
 const user = require("./routes/userRoutes");
 const Food = require("./routes/foodRoutes");

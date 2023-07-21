@@ -1,4 +1,3 @@
-const Cart = require("../models/Cart");
 const express = require("express");
 const { isAuthenticatedUser, authorizedRoles } = require('../middleware/auth');
 const { addToCart, removefromcart, getAllItemsFromCart, replaceFromCart, increaseQuantity, decreaseQuantity } = require("../controller/CartController");

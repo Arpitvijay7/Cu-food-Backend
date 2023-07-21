@@ -2,14 +2,17 @@ const app = require("./app");
 const dotenv = require("dotenv");
 const cloudinary = require("cloudinary");
 const connectDatabase = require("./config/database");
-const socketIO = require('socket.io');
-const http = require('http')
+const socketIO = require("socket.io");
+const http = require("http");
+const { automaticClosingOpening } = require("./utils/automaticClosingOpening");
 
 const server = http.createServer(app);
 const io = socketIO(server);
 
 // Config Path
 dotenv.config({ path: "./config/config.env" });
+
+connectDatabase();
 
 cloudinary.v2.config({
   cloud_name: process.env.CLOUDINARY_CLIENT_NAME,
@@ -25,8 +28,6 @@ process.on("uncaughtException", (err) => {
     process.exit(1);
   });
 });
-
-connectDatabase();
 
 const port = process.env.PORT || 4000; // Use the environment variable PORT or fallback to 3001
 

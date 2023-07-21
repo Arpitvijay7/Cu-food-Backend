@@ -21,7 +21,10 @@ const shopSchema = new mongoose.Schema({
        ref: "Food",
     }
     ],
-
+    vendor: {
+        type: mongoose.Schema.ObjectId,
+        ref: "User",
+    },
     status: {
         type: String,
         default: "closed",
