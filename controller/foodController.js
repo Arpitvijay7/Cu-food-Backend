@@ -10,7 +10,6 @@ const { getdataUri } = require("../utils/dataUri");
 
 // adding a food item to menu   --Admin
 exports.addFoodItem = catchAsyncError(async (req, res, next) => {
-
   if (!req.file) {
     return next(
       new ErrorHandler(
@@ -96,11 +95,40 @@ exports.deleteFoodItem = catchAsyncError(async (req, res, next) => {
 
 // Update a food info
 exports.updateFood = catchAsyncError(async (req, res, next) => {
+  if (!req.file) {
+    return next(
+      new ErrorHandler(
+        `UnSupported Type:-  Only jpeg jpg and png images are supported `,
+        404
+      )
+    );
+  }
+
   let food = await Food.findById(req.params.id);
 
   if (!food) {
     return next(new ErrorHandler("food Item not found", 404));
   }
+
+  const fileuri = getdataUri(req.file);
+  let myCloud, destroyedImg;
+
+  if (fileuri) {
+    myCloud = await cloudinary.v2.uploader.upload(fileuri.content);
+    // destroyedImg = await cloudinary.uploader.destroy(food.image.public_id);
+
+    // if (!destroyedImg) {
+    //   return next(new ErrorHandler("Error in deleting image", 404));
+    // }
+  }
+
+  img_obj = {
+    public_id: myCloud.public_id,
+    path: myCloud.secure_url,
+    contentType: req.file.mimetype,
+  };
+
+  req.body.image = img_obj;
 
   food = await Food.findByIdAndUpdate(req.params.id, req.body, {
     new: true,

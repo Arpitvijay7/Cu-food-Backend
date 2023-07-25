@@ -24,6 +24,6 @@ router
 
 router
   .route("/updateFood/:id")
-  .post(isAuthenticatedUser, authorizedRoles("admin"), updateFood);
+  .post(isAuthenticatedUser, authorizedRoles("admin"),singleUpload, updateFood);
 
 module.exports = router;
