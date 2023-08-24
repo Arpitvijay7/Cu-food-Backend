@@ -60,6 +60,10 @@ const orderSchema = new mongoose.Schema({
     ref : "Shop",
   },
   totalPrice: Number,
+  vendor: {
+    type: mongoose.Schema.ObjectId,
+    ref: "User",
+  },
   paidAt: {
     type: Date,
     required: true,
@@ -68,7 +72,7 @@ const orderSchema = new mongoose.Schema({
   orderStatus: {
     type: String,
     required: true,
-    default: "Preparing",
+    default: "Placed",
   },
   deliveredAt: Date,
   createdAt: {

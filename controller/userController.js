@@ -10,22 +10,38 @@ const sendEmail = require("../utils/sendEmail");
 exports.registerUser = catchAsyncError(async (req, res, next) => {
   let { email, password } = req.body;
 
+  const role = req.query.role;
+
+
   if (!email || !password) {
     return next(
       new ErrorHandler(`Please enter email and password to register`, 400)
     );
   }
 
+  if (role === "vendor") {
+    req.body = {
+      name: req.body.vendorName,
+      email: req.body.email,
+      password: req.body.password,
+    };
+  }
   const user = await User.create(req.body);
 
-  const cart = Cart.create({
-    userId: user._id,
-  });
+  let cart;
+  if (role === "vendor") {
+    user.role = "vendor";
+    await user.save();
+  } else {
+    cart = Cart.create({
+      userId: user._id,
+    });
 
-  if (!cart) {
-    return next(new ErrorHandler(`Cart not created`, 400));
+    if (!cart) {
+      console.log('cart error');
+      return next(new ErrorHandler(`Cart not created`, 400));
+    }
   }
-
   sendToken(user, 200, res);
 });
 
@@ -90,7 +106,6 @@ exports.makeUserAdmin = catchAsyncError(async (req, res, next) => {
   if (!user) {
     return next(new ErrorHandler(`No user found`, 404));
   }
-  console.log(user);
   if (user.role === "admin") {
     return next(new ErrorHandler(`User is already an admin`, 400));
   }
@@ -98,7 +113,7 @@ exports.makeUserAdmin = catchAsyncError(async (req, res, next) => {
   user.role = "admin";
 
   await user.save();
-  
+
   const users = await User.find();
 
   res.status(200).json({

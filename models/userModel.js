@@ -30,6 +30,11 @@ const userSchema = new mongoose.Schema({
       type: String,
       default: "user",
     },
+    phoneNo: {
+      type: String,
+      maxLength: [10, "Phone Number cannot exceed 10 characters"],
+      minLength: [10, "Phone Number should have 10 characters"],   
+    },
     createdAt: {
       type: Date,
       default: Date.now,

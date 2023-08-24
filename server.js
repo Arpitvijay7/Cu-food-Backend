@@ -3,11 +3,26 @@ const dotenv = require("dotenv");
 const cloudinary = require("cloudinary");
 const connectDatabase = require("./config/database");
 const socketIO = require("socket.io");
+const { Server } = require("socket.io");
 const http = require("http");
-const { automaticClosingOpening } = require("./utils/automaticClosingOpening");
+const cors = require("cors");
+
+app.use(cors());
 
 const server = http.createServer(app);
 const io = socketIO(server);
+
+io.on("connection", (socket) => {
+  console.log("WebSocket connected");
+  socket.on('orderPlaced' , (data) => {
+    console.log(data);
+    io.emit('newOrder' , data);
+  })
+
+  socket.on("disconnect", () => {
+    console.log("WebSocket disconnected");
+  });
+});
 
 // Config Path
 dotenv.config({ path: "./config/config.env" });

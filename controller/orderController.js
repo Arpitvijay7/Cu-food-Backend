@@ -4,6 +4,7 @@ const ErrorHandler = require("../utils/ErrorHandler");
 const Razorpay = require("razorpay");
 const crypto = require("crypto");
 const Cart = require("../models/Cart");
+const Shop = require("../models/Shop");
 
 // Create a new order
 exports.checkout = catchAsyncError(async (req, res) => {
@@ -65,7 +66,8 @@ exports.verifyOrder = catchAsyncError(async (req, res) => {
     img_test =
       "https://images-gmi-pmc.edge-generalmills.com/320bc659-12a4-4199-a07f-15b746e29677.jpg";
     let fooditmes = cart.Food;
-    
+
+    let ShopItems = await Shop.findById(cart.shop);
     const orderItems = {
       user: req.user._id,
       paymentInfo,
@@ -76,9 +78,16 @@ exports.verifyOrder = catchAsyncError(async (req, res) => {
       totalPrice: cart.totalSum,
       paidAt: Date.now(),
       shop: cart.shop,
+      vendor: ShopItems.vendor,
     };
 
     const order = await Order.create(orderItems);
+    ShopItems.Balance = ShopItems.Balance + cart.totalSum;
+    ShopItems.TotalEarnings = ShopItems.TotalEarnings + cart.totalSum;
+    ShopItems.TodaysEarnings = ShopItems.TodaysEarnings + cart.totalSum;
+
+    ShopItems.TodayAcceptedOrder.push(order._id);
+    await ShopItems.save();
 
     if (deliveryCheckbox) {
       return res.status(200).json({
@@ -157,11 +166,14 @@ exports.updateOrderStatus = catchAsyncError(async (req, res) => {
   res.status(200).json({
     success: true,
   });
-})
+});
 
-//get All Active Orders -- Admin
-exports.getAllActiveOrders = catchAsyncError(async (req, res) => {
-  const orders = await Order.find({ orderStatus: "Preparing" });
+// get all Orders -- Admin
+exports.getNewOrders = catchAsyncError(async (req, res) => {
+  const orders = await Order.find({
+    orderStatus: "Placed",
+    vendor: req.user._id,
+  });
 
   let totalAmount = 0;
 
@@ -174,7 +186,27 @@ exports.getAllActiveOrders = catchAsyncError(async (req, res) => {
     totalAmount,
     orders,
   });
-})
+});
+
+//get All Active Orders -- Admin
+exports.getAllActiveOrders = catchAsyncError(async (req, res) => {
+  const orders = await Order.find({
+    orderStatus: "Preparing",
+    vendor: req.user._id,
+  });
+
+  let totalAmount = 0;
+
+  orders.forEach((order) => {
+    totalAmount += order.totalPrice;
+  });
+
+  res.status(200).json({
+    success: true,
+    totalAmount,
+    orders,
+  });
+});
 
 //get All Active Orders -- Admin
 exports.getAllDelieveredOrders = catchAsyncError(async (req, res) => {
@@ -191,7 +223,7 @@ exports.getAllDelieveredOrders = catchAsyncError(async (req, res) => {
     totalAmount,
     orders,
   });
-})
+});
 
 // delete Order -- Admin
 exports.deleteOrder = catchAsyncError(async (req, res, next) => {
@@ -205,5 +237,49 @@ exports.deleteOrder = catchAsyncError(async (req, res, next) => {
 
   res.status(200).json({
     success: true,
+  });
+});
+
+// Get Order by otp -- Admin --vendor
+exports.getOrderByOtp = catchAsyncError(async (req, res, next) => {
+  const id = req.params.id;
+
+  const order = await Order.findOne({ Otp: id, vendor: req.user._id });
+
+  if (!order) {
+    return next(new ErrorHandler("No Order found with this otp", 400));
+  }
+
+  res.status(200).json({
+    success: true,
+    order,
+  });
+});
+
+//Order Response from vendor -- Admin --vendor
+exports.orderResponse = catchAsyncError(async (req, res, next) => {
+  const id = req.params.id;
+  const type = req.query.type;
+
+  const order = await Order.findById(id);
+
+  if (!order) {
+    return next(new ErrorHandler("No Order found", 400));
+  }
+
+  if (type) {
+    order.orderStatus = type;
+
+    await order.save();
+  }
+
+  const neworders = await Order.find({
+    orderStatus: "Placed",
+    vendor: req.user._id,
+  });
+
+  res.status(200).json({
+    success: true,
+    neworders,
   });
 });

@@ -29,7 +29,7 @@ exports.addToCart = catchAsyncError(async (req, res, next) => {
   if (!food) {
     return next(new ErrorHandler(`No such food found to add in cart`, 400));
   }
-
+  
   if (!cart) {
     return next(new ErrorHandler(`No such cart found`, 400));
   }
@@ -38,7 +38,7 @@ exports.addToCart = catchAsyncError(async (req, res, next) => {
     return next(
       new ErrorHandler(
         `You Already have a item in cart from diffrent shop remove them to add this item`,
-        400
+        200
       )
     );
   }

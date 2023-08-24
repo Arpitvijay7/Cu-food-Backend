@@ -1,46 +1,70 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const shopSchema = new mongoose.Schema({
-    name: {
-        type: String,
-        required: [true , "Please enter your shop name"],
-        trim : true
-    },
-    description: {
-        type: String,
-        required: [true, "Please enter Shop Despriction"],
-    },
-    image: 
+  name: {
+    type: String,
+    required: [true, "Please enter your shop name"],
+    trim: true,
+  },
+  description: {
+    type: String,
+    required: [true, "Please enter Shop Despriction"],
+  },
+  image: {
+    path: String,
+    public_id: String,
+    contentType: String,
+  },
+  menu: [
     {
-        path:String,
-        public_id : String,
-        contentType:String,
+      type: mongoose.Schema.ObjectId,
+      ref: "Food",
     },
-    menu : [{
-       type: mongoose.Schema.ObjectId,
-       ref: "Food",
-    }
-    ],
-    vendor: {
-        type: mongoose.Schema.ObjectId,
-        ref: "User",
+  ],
+  vendor: {
+    type: mongoose.Schema.ObjectId,
+    ref: "User",
+  },
+  status: {
+    type: String,
+    default: "closed",
+  },
+  openAt: {
+    type: String,
+    default: "09:00",
+  },
+  closeAt: {
+    type: String,
+    default: "21:00",
+  },
+  TotalEarnings: {
+    type: Number,
+    default: 0,
+  },
+  TodaysEarnings: {
+    type: Number,
+    default: 0,
+  },
+  Balance: {
+    type: Number,
+    default: 0,
+  },
+  TodayAcceptedOrder: [
+    {
+      type: mongoose.Schema.ObjectId,
+      ref: "Order",
     },
-    status: {
-        type: String,
-        default: "closed",
+  ],
+  TodayRejectedOrder: [
+    {
+      type: mongoose.Schema.ObjectId,
+      ref: "Order",
     },
-    openAt: {
-        type: String,
-        default: "09:00",
-    },
-    closeAt: {
-        type: String,
-        default: "21:00",
-    },
-    createdAt: {
-        type: Date,
-        default: Date.now,
-    },
-})
+  ],
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+});
 
-module.exports = mongoose.model('Shop', shopSchema);
+module.exports = mongoose.model("Shop", shopSchema);

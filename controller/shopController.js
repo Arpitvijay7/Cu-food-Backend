@@ -6,40 +6,7 @@ const Food = require("../models/Food");
 const multer = require("multer");
 const path = require("path");
 const { dataUri, getdataUri } = require("../utils/dataUri");
-const cloudinary = require('cloudinary');
-
-// multer diskStrorage
-// const Storage = multer.diskStorage({
-//   destination: "Uploads/shopImages",
-//   filename: (req, file, cb) => {
-//     const uniqueSuffix = Date.now() + "-" + Math.round(Math.random());
-//     cb(
-//       null,
-//       file.fieldname +
-//         "-" +
-//         uniqueSuffix +
-//         "." +
-//         path.extname(file.originalname)
-//     );
-//   },
-// });
-
-// const filefilter = (req, file, cb) => {
-//   if (
-//     file.mimetype === "image/jpeg" ||
-//     file.mimetype === "image/png" ||
-//     file.mimetype === "image/jpg"
-//   ) {
-//     cb(null, true);
-//   } else {
-//     cb(null, false);
-//   }
-// };
-
-// const upload = multer({
-//   storage: Storage,
-//   fileFilter: filefilter,
-// }).single("image");
+const cloudinary = require("cloudinary");
 
 // Create a shop
 exports.createShop = catchAsyncError(async (req, res, next) => {
@@ -63,6 +30,7 @@ exports.createShop = catchAsyncError(async (req, res, next) => {
   };
 
   req.body.image = img_obj;
+  req.body.vendor = req.user._id;
   const shop = await Shop.create(req.body);
 
   if (!shop) {
@@ -128,7 +96,7 @@ exports.getShopDetail = catchAsyncError(async (req, res, next) => {
   });
 });
 
-// Update a Shop Detail
+// Update a Shop Detail --Admin
 exports.updateShop = catchAsyncError(async (req, res, next) => {
   let shop = Shop.findById(req.params.id);
 
@@ -169,4 +137,25 @@ exports.getMenu = catchAsyncError(async (req, res, next) => {
     message: "Success",
     Menu,
   });
+});
+
+// Get Vendor Shop --Admin --Vendor
+exports.getVendorShop = catchAsyncError(async (req, res, next) => {
+  const id = req.user._id;
+
+  const shop = await Shop.findOne({ vendor: id });
+
+  if (!shop) {
+    return next(
+      new ErrorHandler(
+        `No shop found related to your account please register your shop first`,
+        404
+      )
+    );
+  }
+
+  res.status(200).json({
+    success : true,
+    shop
+  })
 });
