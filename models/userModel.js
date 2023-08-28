@@ -39,7 +39,20 @@ const userSchema = new mongoose.Schema({
       type: Date,
       default: Date.now,
     },
-  
+    vendor_account_details: {
+      accountNumber : {
+        type: Number,
+      },
+      accountHolderName : {
+        type: String,
+      },
+      bankName : {
+        type: String,
+      },
+      ifscCode : {
+        type: String,
+      },
+    },
     resetPasswordToken: String,
     resetPasswordExpire: Date,
 });

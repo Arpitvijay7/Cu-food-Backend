@@ -155,7 +155,40 @@ exports.getVendorShop = catchAsyncError(async (req, res, next) => {
   }
 
   res.status(200).json({
-    success : true,
-    shop
-  })
+    success: true,
+    shop,
+  });
+});
+
+exports.changeShopStatus = catchAsyncError(async (req, res, next) => {
+  const id = req.params.id;
+
+  const shop = await Shop.findById(id);
+
+  if (!shop) {
+    return next(new ErrorHandler("No such shop found to get menu from", 404));
+  }
+
+  if (shop.status == "open") {
+    shop.status = "closed";
+  } else {
+    const date = new Date();
+    const time = date.getHours() + ":" + date.getMinutes();
+
+    if (
+      (time > shop.closeAt && time > shop.openAt) ||
+      (time < shop.openAt && time < shop.closeAt)
+    ) {
+      return next(new ErrorHandler("You can't Open your Shop at this time", 401));
+    }
+
+    shop.status = "open";
+  }
+
+  await shop.save();
+
+  res.status(200).json({
+    message: "Success",
+    shop,
+  });
 });

@@ -1,6 +1,7 @@
 const catchAsyncError = require("../middleware/catchAsyncError");
 const Cart = require("../models/Cart");
 const Food = require("../models/Food");
+const Shop = require("../models/Shop");
 const ErrorHandler = require("../utils/ErrorHandler");
 
 // Get All items of a Cart
@@ -25,11 +26,12 @@ exports.addToCart = catchAsyncError(async (req, res, next) => {
 
   const food = await Food.findById(id);
   const cart = await Cart.findOne({ userId: req.user._id });
+  const shop = await Shop.findById(food.shop);
 
   if (!food) {
     return next(new ErrorHandler(`No such food found to add in cart`, 400));
   }
-  
+
   if (!cart) {
     return next(new ErrorHandler(`No such cart found`, 400));
   }
@@ -84,19 +86,27 @@ exports.addToCart = catchAsyncError(async (req, res, next) => {
     cart.isEmpty = false;
     cart.shop = food.shop;
   }
+  await cart.save();
 
   let foodItem = {
     name: food.name,
     price: itemPrice,
     Option: option,
-    image: food.image.path,
+    image: {
+      path: food.image.path,
+    },
     quantity: 1,
+    shopName: shop.name,
     foodId: food.id,
   };
 
+  console.log(food.image.path);
+  console.log(foodItem);
 
   cart.Food.push(foodItem);
   await cart.save();
+
+  console.log("cart:- ", cart);
 
   res.status(200).json({
     message: `Item Successfully added in Cart`,
@@ -157,6 +167,7 @@ exports.replaceFromCart = catchAsyncError(async (req, res, next) => {
     return next(new ErrorHandler(`No such cart found`, 400));
   }
   const food = await Food.findById(req.params.id);
+  const shop = await Shop.findById(food.shop);
 
   if (!food) {
     return next(new ErrorHandler(`No such food found to add in cart`, 400));
@@ -192,8 +203,11 @@ exports.replaceFromCart = catchAsyncError(async (req, res, next) => {
     name: food.name,
     price: itemPrice,
     Option: option,
-    image: food.image.path,
+    image: {
+      path: food.image.path,
+    },
     foodId: food.id,
+    shopName: shop.name,
     quantity: 1,
   };
 

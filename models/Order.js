@@ -39,6 +39,9 @@ const orderSchema = new mongoose.Schema({
       price: {
         type: Number,
       },
+      shopName: {
+        type: String,
+      },
       Option: {
         type: String,
       },

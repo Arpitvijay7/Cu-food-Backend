@@ -78,7 +78,6 @@ exports.verifyOrder = catchAsyncError(async (req, res) => {
       totalPrice: cart.totalSum,
       paidAt: Date.now(),
       shop: cart.shop,
-      vendor: ShopItems.vendor,
     };
 
     const order = await Order.create(orderItems);
@@ -108,8 +107,8 @@ exports.verifyOrder = catchAsyncError(async (req, res) => {
 
 // get logged in user  Orders
 exports.myOrders = catchAsyncError(async (req, res) => {
-  const orders = await Order.find({ user: req.user._id });
-
+  const orders = await Order.find({ user: req.user._id , orderStatus : {$in :['Placed' , 'Preparing']}});
+  orders.reverse();
   res.status(200).json({
     success: true,
     orders,
@@ -210,7 +209,7 @@ exports.getAllActiveOrders = catchAsyncError(async (req, res) => {
 
 //get All Active Orders -- Admin
 exports.getAllDelieveredOrders = catchAsyncError(async (req, res) => {
-  const orders = await Order.find({ orderStatus: "Delivered" });
+  const orders = await Order.find({ orderStatus: "Delivered" ,vendor: req.user._id,});
 
   let totalAmount = 0;
 
@@ -246,7 +245,7 @@ exports.getOrderByOtp = catchAsyncError(async (req, res, next) => {
 
   const order = await Order.findOne({ Otp: id, vendor: req.user._id });
 
-  if (!order) {
+  if (!order || order.orderStatus === "Delivered") {
     return next(new ErrorHandler("No Order found with this otp", 400));
   }
 

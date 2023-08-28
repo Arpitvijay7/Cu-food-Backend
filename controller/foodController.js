@@ -10,8 +10,9 @@ const { getdataUri } = require("../utils/dataUri");
 
 // adding a food item to menu   --Admin
 exports.addFoodItem = catchAsyncError(async (req, res, next) => {
-
-  req.body.DualOptions = JSON.parse(req.body.DualOptions);
+  if (req.body.DualOptions) {
+    req.body.DualOptions = JSON.parse(req.body.DualOptions);
+  }
 
   if (!req.file) {
     return next(

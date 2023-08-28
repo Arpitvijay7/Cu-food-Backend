@@ -5,13 +5,14 @@ const ErrorHandler = require("../utils/ErrorHandler");
 const sendToken = require("../utils/JwtToken");
 const crypto = require("crypto");
 const sendEmail = require("../utils/sendEmail");
+const Shop = require("../models/Shop");
+const Razorpay = require("razorpay");
 
 // Register a new user
 exports.registerUser = catchAsyncError(async (req, res, next) => {
   let { email, password } = req.body;
 
   const role = req.query.role;
-
 
   if (!email || !password) {
     return next(
@@ -20,10 +21,17 @@ exports.registerUser = catchAsyncError(async (req, res, next) => {
   }
 
   if (role === "vendor") {
+    vendor_account_details = {};
+    vendor_account_details.accountNumber = req.body.accountNumber;
+    vendor_account_details.accountHolderName = req.body.accountHolderName;
+    vendor_account_details.bankName = req.body.bankName;
+    vendor_account_details.ifscCode = req.body.ifscCode;
+
     req.body = {
       name: req.body.vendorName,
       email: req.body.email,
       password: req.body.password,
+      vendor_account_details,
     };
   }
   const user = await User.create(req.body);
@@ -32,16 +40,17 @@ exports.registerUser = catchAsyncError(async (req, res, next) => {
   if (role === "vendor") {
     user.role = "vendor";
     await user.save();
-  } else {
-    cart = Cart.create({
-      userId: user._id,
-    });
-
-    if (!cart) {
-      console.log('cart error');
-      return next(new ErrorHandler(`Cart not created`, 400));
-    }
   }
+
+  cart = Cart.create({
+    userId: user._id,
+  });
+
+  if (!cart) {
+    console.log("cart error");
+    return next(new ErrorHandler(`Cart not created`, 400));
+  }
+
   sendToken(user, 200, res);
 });
 
@@ -245,4 +254,96 @@ exports.resetPassword = catchAsyncError(async (req, res, next) => {
   await user.save();
 
   sendToken(user, 200, res);
+});
+
+// Vendor Withdrwal Request --vendor only
+exports.vendorWithdrawalRequest = catchAsyncError(async (req, res, next) => {
+  const vendor = await User.findById(req.user._id);
+
+  if (!vendor) {
+    return next(new ErrorHandler(`No vendor found`, 404));
+  }
+
+  if (vendor.role !== "vendor") {
+    return next(new ErrorHandler(`You are not a vendor`, 400));
+  }
+
+  const recipientAccountNumber = vendor.vendor_account_details.accountNumber;
+  const recipientBankCode = vendor.vendor_account_details.ifscCode;
+  const recipientName = vendor.vendor_account_details.accountHolderName;
+
+  if (!recipientAccountNumber || !recipientBankCode || !recipientName) {
+    return next(
+      new ErrorHandler(
+        `Please provide all the required fields for withdrawal`,
+        400
+      )
+    );
+  }
+
+  const shop = await Shop.findOne({ vendor: req.user._id });
+
+  const amount = shop.Balance;
+
+  if (amount == 0) {
+    return next(new ErrorHandler(`You have no balance to withdraw`, 400));
+  }
+
+  const razorpay = new Razorpay({
+    key_id: process.env.RAZOR_KEY_ID,
+    key_secret: process.env.RAZOR_KEY_SECRET,
+  });
+  console.log("amount", amount);
+
+  const withdrawalOptions = {
+    transfers: [
+      {
+        account: recipientAccountNumber,
+        amount: amount * 100, // Amount should be in paise
+        currency: "INR",
+        notes: {
+          recipient_name: recipientName,
+        },
+      },
+    ],
+  };
+
+  razorpay.transfers.create(withdrawalOptions, (error, transfer) => {
+    if (error) {
+      console.error("Withdrawal error:", error);
+      res.status(400).json({
+        message: "Withdrawal request failed",
+        error,
+      });
+    } else {
+      console.log("Withdrawal successful:", transfer);
+      res.status(200).json({
+        message: "Withdrawal request initiated successfully",
+        transfer,
+      });
+    }
+  });
+
+  // const withdrawalRequest = await razorpay.virtualAccounts.create({
+  //   receiver_type: "Bank of Baroda",
+  //   receiver_details: {
+  //     account_number: recipientAccountNumber,
+  //     name: recipientName,
+  //     // Add more recipient details as needed
+  //   },
+  //   amount,
+  //   description: "Withdrawal from Cu Food",
+  // });
+  // console.log('afteramount',amount);
+
+  // if (withdrawalRequest && withdrawalRequest.id) {
+  //   // If the withdrawal request was successful
+  //   res.status(200).json({
+  //     message: "Withdrawal request initiated successfully",
+  //     data: withdrawalRequest,
+  //   });
+  // } else {
+  //   // If the withdrawal request failed
+  //   res.status(500).json({ error: "Withdrawal request failed" });
+  // }
 });

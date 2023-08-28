@@ -12,7 +12,8 @@ const {
   getAllUsers,
   getLoggedInUser,
   removeUser,
-  makeUserAdmin
+  makeUserAdmin,
+  vendorWithdrawalRequest
 } = require("../controller/userController");
 
 const router = express.Router();
@@ -51,5 +52,7 @@ router.route("/logout").get(isAuthenticatedUser, logoutUser);
 router.route("/password/forget").post(isAuthenticatedUser, forgotPassword);
 
 router.route("/password/reset/:token").put(isAuthenticatedUser, forgotPassword);
+
+router.route('/vendorWithdrwal').get(isAuthenticatedUser , authorizedRoles('vendor','admin'),vendorWithdrawalRequest);
 
 module.exports = router;

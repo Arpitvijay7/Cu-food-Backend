@@ -7,6 +7,7 @@ const {
   updateShop,
   getMenu,
   getVendorShop,
+  changeShopStatus,
 } = require("../controller/shopController");
 const { isAuthenticatedUser, authorizedRoles } = require("../middleware/auth");
 const singleUpload = require("../middleware/multer");
@@ -39,5 +40,9 @@ router
 router
   .route("/getShop")
   .get(isAuthenticatedUser, authorizedRoles("admin", "vendor"), getVendorShop);
+
+router
+  .route("/changeStatus/:id")
+  .put(isAuthenticatedUser, authorizedRoles("admin", "vendor"), changeShopStatus);
 
 module.exports = router;

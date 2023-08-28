@@ -9,6 +9,9 @@ const CartSchema = new mongoose.Schema({
       name: {
          type:String
       },
+      shopName: {
+         type:String
+      },
       price : {
          type:Number
       },

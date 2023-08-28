@@ -10,7 +10,7 @@ const {
   getAllDelieveredOrders,
   getNewOrders,
   getOrderByOtp,
-  orderResponse
+  orderResponse,
 } = require("../controller/orderController");
 const { isAuthenticatedUser, authorizedRoles } = require("../middleware/auth");
 
@@ -45,6 +45,10 @@ router
   .get(isAuthenticatedUser, authorizedRoles("admin", "vendor"), getNewOrders);
 
 router
+  .route("/getNewOrders")
+  .get(isAuthenticatedUser, authorizedRoles("admin", "vendor"), getNewOrders);
+
+router
   .route("/getAllDelieveredOrders")
   .get(
     isAuthenticatedUser,
@@ -52,8 +56,12 @@ router
     getAllDelieveredOrders
   );
 
-router.route('/getOrderByOtp/:id').get(isAuthenticatedUser, authorizedRoles('vendor','admin'), getOrderByOtp);
+router
+  .route("/getOrderByOtp/:id")
+  .get(isAuthenticatedUser, authorizedRoles("vendor", "admin"), getOrderByOtp);
 
-router.route("/orderResponse/:id").get(isAuthenticatedUser, authorizedRoles("vendor","admin"), orderResponse);
+router
+  .route("/orderResponse/:id")
+  .get(isAuthenticatedUser, authorizedRoles("vendor", "admin"), orderResponse);
 
 module.exports = router;
