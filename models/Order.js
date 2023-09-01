@@ -56,11 +56,19 @@ const orderSchema = new mongoose.Schema({
         type: mongoose.Schema.ObjectId,
         ref: "Food",
       },
+      review: {
+        rating: {
+          type: Number,
+        },
+        comment: {
+          type: String,
+        },
+      },
     },
   ],
-  shop : {
+  shop: {
     type: mongoose.Schema.ObjectId,
-    ref : "Shop",
+    ref: "Shop",
   },
   totalPrice: Number,
   vendor: {

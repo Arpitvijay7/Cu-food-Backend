@@ -37,6 +37,20 @@ const shopSchema = new mongoose.Schema({
     type: String,
     default: "21:00",
   },
+  rating: {
+    numofReviews: {
+      type: Number,
+      default: 0,
+    },
+    TotalRating: {
+      type: Number,
+      default: 0,
+    },
+    avgRating: {
+      type: Number,
+      default: 0,
+    },
+  },
   TotalEarnings: {
     type: Number,
     default: 0,

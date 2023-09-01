@@ -5,6 +5,7 @@ const Razorpay = require("razorpay");
 const crypto = require("crypto");
 const Cart = require("../models/Cart");
 const Shop = require("../models/Shop");
+const Food = require("../models/Food");
 
 // Create a new order
 exports.checkout = catchAsyncError(async (req, res) => {
@@ -78,6 +79,7 @@ exports.verifyOrder = catchAsyncError(async (req, res) => {
       totalPrice: cart.totalSum,
       paidAt: Date.now(),
       shop: cart.shop,
+      vendor : ShopItems.vendor
     };
 
     const order = await Order.create(orderItems);
@@ -108,6 +110,15 @@ exports.verifyOrder = catchAsyncError(async (req, res) => {
 // get logged in user  Orders
 exports.myOrders = catchAsyncError(async (req, res) => {
   const orders = await Order.find({ user: req.user._id , orderStatus : {$in :['Placed' , 'Preparing']}});
+  orders.reverse();
+  res.status(200).json({
+    success: true,
+    orders,
+  });
+});
+
+exports.myDeliveredOrders = catchAsyncError(async (req, res) => {
+  const orders = await Order.find({ user: req.user._id , orderStatus : 'Delivered'});
   orders.reverse();
   res.status(200).json({
     success: true,

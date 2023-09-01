@@ -11,8 +11,10 @@ const {
   getNewOrders,
   getOrderByOtp,
   orderResponse,
+  myDeliveredOrders,
 } = require("../controller/orderController");
 const { isAuthenticatedUser, authorizedRoles } = require("../middleware/auth");
+
 
 const router = express.Router();
 
@@ -21,6 +23,8 @@ router.route("/checkout").post(isAuthenticatedUser, checkout);
 router.route("/verifyOrder").post(isAuthenticatedUser, verifyOrder);
 
 router.route("/myOrders").get(isAuthenticatedUser, myOrders);
+
+router.route("/myDeliveredOrders").get(isAuthenticatedUser, myDeliveredOrders);
 
 router.route("/getOrder/:id").get(isAuthenticatedUser, getSingleOrder);
 
@@ -63,5 +67,6 @@ router
 router
   .route("/orderResponse/:id")
   .get(isAuthenticatedUser, authorizedRoles("vendor", "admin"), orderResponse);
+
 
 module.exports = router;

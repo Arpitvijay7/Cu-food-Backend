@@ -1,12 +1,10 @@
 const Food = require("../models/Food");
 const Shop = require("../models/Shop");
 const catchAsyncError = require("../middleware/catchAsyncError");
-const ApiFeatures = require("../utils/apifeatures");
 const ErrorHandler = require("../utils/ErrorHandler");
-const multer = require("multer");
-const path = require("path");
 const cloudinary = require("cloudinary");
 const { getdataUri } = require("../utils/dataUri");
+const Order = require("../models/Order");
 
 // adding a food item to menu   --Admin
 exports.addFoodItem = catchAsyncError(async (req, res, next) => {
@@ -137,6 +135,82 @@ exports.updateFood = catchAsyncError(async (req, res, next) => {
 
   res.status(200).json({
     message: "food updated successfully in menu",
+    food,
+  });
+});
+
+exports.rateFood = catchAsyncError(async (req, res, next) => {
+  const foodId = req.params.food;
+  const orderId = req.params.order;
+  const option = req.query.option;
+  const food = await Food.findById(foodId);
+  const order = await Order.findById(orderId);
+  const shop = await Shop.findById(food.shop);
+
+  if (!food) {
+    return next(new ErrorHandler("food Item not found", 400));
+  }
+
+  if (order.user.toString() != req.user._id.toString()) {
+    return next(new ErrorHandler("You are not authorized to rate", 400));
+  }
+
+  if (!order) {
+    return next(new ErrorHandler("Order not found", 400));
+  }
+
+  if (order.orderStatus !== "Delivered") {
+    return next(new ErrorHandler("Order not delivered yet", 400));
+  }
+
+  const rating = req.body.rating;
+
+  const item = {
+    user: req.user._id,
+    rating,
+  };
+
+  let check = 0;
+  for (let i = 0; i < order.OrderItems.length; i++) {
+    if (
+      order.OrderItems[i].foodId.toString() == foodId.toString() &&
+      (option ? order.OrderItems[i].Option == option : true)
+    ) {
+      order.OrderItems[i].review = item;
+      await order.save();
+      check = 1;
+      break;
+    }
+  }
+
+  if (check == 0) {
+    return next(new ErrorHandler("Food not found in order", 400));
+  }
+
+  const newFoodRating = (
+    (food.rating.TotalRating + parseInt(rating)) /
+    (food.rating.numofReviews + 1)
+  ).toFixed(1);
+
+  food.rating.avgRating = newFoodRating;
+  food.rating.TotalRating = food.rating.TotalRating + parseInt(rating);
+  food.rating.numofReviews = food.rating.numofReviews + 1;
+  await food.save();
+
+  const newShopRating = (
+    (shop.rating.TotalRating + parseInt(rating)) /
+    (shop.rating.numofReviews + 1)
+  ).toFixed(1);
+  shop.rating.avgRating = newShopRating;
+  shop.rating.TotalRating = shop.rating.TotalRating + parseInt(rating);
+  shop.rating.numofReviews = shop.rating.numofReviews + 1;
+  await shop.save();
+
+  food.reviews.push(item);
+  await food.save();
+
+  res.status(200).json({
+    message: "food rated successfully",
     food,
   });
 });
