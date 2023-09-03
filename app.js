@@ -22,7 +22,7 @@ app.use(cookieParser());
 app.use(
   '*',
   cors({
-    origin: 'https://cufoods.netlify.app/',
+    origin: 'https://cufoods.netlify.app',
     credentials: true,
   })
 );
