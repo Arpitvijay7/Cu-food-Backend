@@ -6,6 +6,9 @@ const orderSchema = new mongoose.Schema({
     ref: "User",
     required: true,
   },
+  userName: {
+    type: String,
+  },
   paymentInfo: {
     id: {
       type: String,

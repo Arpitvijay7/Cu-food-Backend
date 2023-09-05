@@ -51,6 +51,7 @@ exports.getAllshops = catchAsyncError(async (req, res, next) => {
 
   const apiFeatures = new ApiFeatures(Shop.find({}), req.query).search();
 
+  console.log(apiFeatures.query);
   const shops = await apiFeatures.query;
 
   res.status(201).json({
@@ -127,11 +128,24 @@ exports.getMenu = catchAsyncError(async (req, res, next) => {
   }
 
   let Menu = [];
+  let tt = [];
 
   for (let i = 0; i < shop.menu.length; i++) {
-    let item = await Food.findById(shop.menu[i]);
-    Menu.push(item);
+    const it = await Food.findById(shop.menu[i]);
+    tt.push(it);
+    const apiFeatures = new ApiFeatures(
+      Food.find({}),
+      req.query,
+      shop.menu[i]
+    ).menuSearch();
+
+    const item = await apiFeatures.query;
+
+    if (item[0] !== undefined) {
+      Menu.push(item[0]);
+    }
   }
+  console.log(Menu);
 
   res.status(200).json({
     message: "Success",
@@ -179,7 +193,9 @@ exports.changeShopStatus = catchAsyncError(async (req, res, next) => {
       (time > shop.closeAt && time > shop.openAt) ||
       (time < shop.openAt && time < shop.closeAt)
     ) {
-      return next(new ErrorHandler("You can't Open your Shop at this time", 401));
+      return next(
+        new ErrorHandler("You can't Open your Shop at this time", 401)
+      );
     }
 
     shop.status = "open";

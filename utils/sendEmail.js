@@ -1,7 +1,11 @@
 const nodeMailer = require("nodemailer");
 const catchAsyncError = require("../middleware/catchAsyncError");
+const fs = require("fs");
 
 const sendEmail = catchAsyncError(async (options) => {
+
+  const htmlContent = fs.readFileSync('./resetPassword', 'utf-8');
+
   const transporter = nodeMailer.createTransport({
     
     service: process.env.SMPT_SERVICE,
@@ -16,6 +20,7 @@ const sendEmail = catchAsyncError(async (options) => {
     to: options.email,
     subject: options.subject,
     text: options.message,
+    html: htmlContent,
   };
 
   await transporter.sendMail(mailOptions);

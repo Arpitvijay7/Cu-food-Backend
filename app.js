@@ -19,21 +19,21 @@ app.use(
 );
 app.use(cookieParser());
 
-app.use(
-  '*',
-  cors({
-    origin: 'https://cufoods.netlify.app',
-    credentials: true,
-  })
-);
-
 // app.use(
 //   '*',
 //   cors({
-//     origin: true,
+//     origin: 'https://cufoods.netlify.app',
 //     credentials: true,
 //   })
 // );
+
+app.use(
+  '*',
+  cors({
+    origin: true,
+    credentials: true,
+  })
+);
 
 app.use(
   session({
@@ -54,12 +54,15 @@ const user = require("./routes/userRoutes");
 const Food = require("./routes/foodRoutes");
 const Cart = require("./routes/cartRoutes");
 const Order = require("./routes/orderRoutes");
+const notification = require("./routes/NotificationRoute");
 
 app.use("/api/vi/shop", Shop);
 app.use("/api/vi/user", user);
 app.use("/api/vi/food", Food);
 app.use("/api/vi/cart", Cart);
 app.use("/api/vi/order", Order);
+app.use("/api/vi/notification", notification);
+
 
 app.use(errorMiddleware);
 

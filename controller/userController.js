@@ -225,6 +225,11 @@ exports.forgotPassword = catchAsyncError(async (req, res, next) => {
 // Reset password
 exports.resetPassword = catchAsyncError(async (req, res, next) => {
   // creating token hash
+
+  if (req.body.password !== req.body.confirmPassword) {
+    return next(new ErrorHandler("Password does not match with confirm password", 400));
+  }
+
   const resetPasswordToken = crypto
     .createHash("sha256")
     .update(req.params.token)
@@ -241,10 +246,6 @@ exports.resetPassword = catchAsyncError(async (req, res, next) => {
         400
       )
     );
-  }
-
-  if (req.body.password !== req.body.confirmPassword) {
-    return next(new ErrorHandler("Password does not password", 400));
   }
 
   user.password = req.body.password;

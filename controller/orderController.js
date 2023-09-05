@@ -6,6 +6,8 @@ const crypto = require("crypto");
 const Cart = require("../models/Cart");
 const Shop = require("../models/Shop");
 const Food = require("../models/Food");
+const { sendPushNotification } = require("../utils/pushNotification");
+const User = require("../models/userModel");
 
 // Create a new order
 exports.checkout = catchAsyncError(async (req, res) => {
@@ -36,7 +38,7 @@ exports.checkout = catchAsyncError(async (req, res) => {
 
 exports.verifyOrder = catchAsyncError(async (req, res) => {
   const { checkoutRes, orderId } = req.body;
-
+  console.log("checkoutRes", checkoutRes);
   const hmac = crypto.createHmac("sha256", process.env.RAZOR_KEY_SECRET);
 
   hmac.update(orderId + "|" + checkoutRes.razorpay_payment_id);
@@ -64,13 +66,15 @@ exports.verifyOrder = catchAsyncError(async (req, res) => {
       const random = Math.floor(Math.random() * 1000000);
       Otp = random;
     }
-    img_test =
-      "https://images-gmi-pmc.edge-generalmills.com/320bc659-12a4-4199-a07f-15b746e29677.jpg";
     let fooditmes = cart.Food;
 
     let ShopItems = await Shop.findById(cart.shop);
+    // await sendPushNotification(ShopItems.vendor, "CU FOODZ", "You have a new order");
+    const user = await User.findById(req.user._id);
+
     const orderItems = {
       user: req.user._id,
+      userName: user.name,
       paymentInfo,
       delivery: deliveryCheckbox,
       deliveryAddress,
