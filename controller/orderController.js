@@ -153,7 +153,8 @@ exports.getAllOrders = catchAsyncError(async (req, res) => {
   orders.forEach((order) => {
     totalAmount += order.totalPrice;
   });
-
+  orders.reverse();
+  
   res.status(200).json({
     success: true,
     totalAmount,
@@ -194,7 +195,8 @@ exports.getNewOrders = catchAsyncError(async (req, res) => {
   orders.forEach((order) => {
     totalAmount += order.totalPrice;
   });
-
+  orders.reverse();
+  
   res.status(200).json({
     success: true,
     totalAmount,
@@ -214,6 +216,8 @@ exports.getAllActiveOrders = catchAsyncError(async (req, res) => {
   orders.forEach((order) => {
     totalAmount += order.totalPrice;
   });
+  orders.reverse();
+
 
   res.status(200).json({
     success: true,
@@ -231,7 +235,8 @@ exports.getAllDelieveredOrders = catchAsyncError(async (req, res) => {
   orders.forEach((order) => {
     totalAmount += order.totalPrice;
   });
-
+  orders.reverse();
+  
   res.status(200).json({
     success: true,
     totalAmount,
