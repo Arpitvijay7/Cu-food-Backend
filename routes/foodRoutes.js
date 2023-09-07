@@ -4,6 +4,7 @@ const {
   deleteFoodItem,
   updateFood,
   rateFood,
+  updateStocks
 } = require("../controller/foodController");
 const { isAuthenticatedUser, authorizedRoles } = require("../middleware/auth");
 const singleUpload = require("../middleware/multer");
@@ -34,6 +35,14 @@ router
     authorizedRoles("admin", "vendor"),
     singleUpload,
     updateFood
+  );
+
+router
+  .route("/updateStocks/:id")
+  .put(
+    isAuthenticatedUser,
+    authorizedRoles("admin", "vendor"),
+    updateStocks
   );
 
 router.route("/rate/:food/:order").post(isAuthenticatedUser, rateFood);

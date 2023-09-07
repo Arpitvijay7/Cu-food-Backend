@@ -38,7 +38,7 @@ exports.checkout = catchAsyncError(async (req, res) => {
 
 exports.verifyOrder = catchAsyncError(async (req, res) => {
   const { checkoutRes, orderId } = req.body;
-  console.log("checkoutRes", checkoutRes);
+
   const hmac = crypto.createHmac("sha256", process.env.RAZOR_KEY_SECRET);
 
   hmac.update(orderId + "|" + checkoutRes.razorpay_payment_id);

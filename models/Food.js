@@ -19,6 +19,10 @@ const foodSchema = mongoose.Schema({
     required: [true, "Please enter Food Price"],
     maxLenght: [8, "Price cannot exceed 8 characters"],
   },
+  stockAvailability: {
+    type: Boolean,
+    default: true,
+  },
   price_full: {
     type: Number,
     maxLenght: [8, "Price cannot exceed 8 characters"],

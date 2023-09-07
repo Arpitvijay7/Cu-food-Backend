@@ -214,3 +214,37 @@ exports.rateFood = catchAsyncError(async (req, res, next) => {
     food,
   });
 });
+
+exports.updateStocks = catchAsyncError(async (req, res, next) => {
+  const foodId = req.params.id;
+  const option = req.query.option;
+
+  const food = await Food.findById(foodId);
+
+  if (!food) {
+    return next(new ErrorHandler("food Item not found", 400));
+  }
+
+  const shop = await Shop.findById(food.shop);
+
+  if (!shop) {
+    return next(new ErrorHandler("Shop not found", 400));
+  }
+
+  if (shop.vendor.toString() != req.user._id.toString()) {
+    return next(new ErrorHandler("You are not authorized to do this", 400));
+  }
+
+  if (option == "StockOut") {
+    food.stockAvailability = false;
+  }else if (option == "StockIn") {
+    food.stockAvailability = true;
+  }
+
+  await food.save();
+
+  res.status(200).json({
+    message: "food stock out successfully",
+    food,
+  });
+});

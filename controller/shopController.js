@@ -145,10 +145,10 @@ exports.getMenu = catchAsyncError(async (req, res, next) => {
       Menu.push(item[0]);
     }
   }
-  console.log(Menu);
 
   res.status(200).json({
     message: "Success",
+    shopName : shop.name,
     Menu,
   });
 });

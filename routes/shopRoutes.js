@@ -45,4 +45,8 @@ router
   .route("/changeStatus/:id")
   .put(isAuthenticatedUser, authorizedRoles("admin", "vendor"), changeShopStatus);
 
+  router
+  .route("/changeStatus/:id")
+  .put(isAuthenticatedUser, authorizedRoles("admin", "vendor"), changeShopStatus);
+
 module.exports = router;
