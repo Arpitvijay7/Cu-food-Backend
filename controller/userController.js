@@ -13,7 +13,7 @@ exports.registerUser = catchAsyncError(async (req, res, next) => {
   let { email, password } = req.body;
 
   const role = req.query.role;
-
+  console.log(email, password);
   if (!email || !password) {
     return next(
       new ErrorHandler(`Please enter email and password to register`, 400)
@@ -34,13 +34,82 @@ exports.registerUser = catchAsyncError(async (req, res, next) => {
       vendor_account_details,
     };
   }
-  const user = await User.create(req.body);
 
-  let cart;
+  let user = await User.findOne({ email });
+
+  if (!user) {
+    user = await User.create(req.body);
+  }
+
   if (role === "vendor") {
     user.role = "vendor";
     await user.save();
   }
+
+  const verificationtoken = await user.getEmailVerificationToken();
+  await user.save({ validateBeforeSave: false });
+
+  let verifyEmailUrl = `${req.protocol}://localhost:3000/verifyEmail?token=${verificationtoken}`;
+
+  if (role === "vendor") {
+    verifyEmailUrl = `${req.protocol}://localhost:3000/vendor/verifyEmail?token=${verificationtoken}`;
+  }
+
+  try {
+    await sendEmail({
+      type: "VERIFY_EMAIL",
+      email: user.email,
+      name: user.name,
+      verifyEmailUrl,
+      req,
+      subject: `Cu Food Email Verification`,
+    });
+
+    res.status(200).json({
+      success: true,
+      message: `Email sent to ${user.email} successfully`,
+    });
+  } catch (error) {
+    user.EmailVerificationToken = undefined;
+    user.EmailVerificationExpire = undefined;
+
+    await user.save({ validateBeforeSave: false });
+
+    return next(new ErrorHandler(error.message, 500));
+  }
+});
+
+exports.verifyEmail = catchAsyncError(async (req, res, next) => {
+  const EmailVerificationToken = crypto
+    .createHash("sha256")
+    .update(req.params.token)
+    .digest("hex");
+
+  const user = await User.findOne({ EmailVerificationToken });
+
+  console.log(user);
+  if (!user) {
+    return next(
+      new ErrorHandler(`Verification Link either invalid or expired`, 400)
+    );
+  }
+
+  if (user.isVerified === true) {
+    return next(new ErrorHandler(`Email already verified`, 400));
+  }
+
+  if (user.EmailVerificationExpire < Date.now()) {
+    user.EmailVerificationToken = undefined;
+    user.EmailVerificationExpire = undefined;
+    return next(new ErrorHandler(`Verification Link expired`, 400));
+  }
+
+  user.isVerified = true;
+  user.EmailVerificationToken = undefined;
+  user.EmailVerificationExpire = undefined;
+  await user.save({ validateBeforeSave: false });
+
+  let cart;
 
   cart = Cart.create({
     userId: user._id,
@@ -181,8 +250,17 @@ exports.getLoggedInUser = catchAsyncError(async (req, res, next) => {
 exports.forgotPassword = catchAsyncError(async (req, res, next) => {
   const user = await User.findOne({ email: req.body.email });
 
+  if (user.googleId) {
+    return next(
+      new ErrorHandler(
+        `You logged in via google login we can't change your password`,
+        400
+      )
+    );
+  }
+
   if (!user) {
-    return next(new ErrorHandler("User not found", 404));
+    return next(new ErrorHandler("No User with this email found", 404));
   }
 
   // Get ResetPassword Token
@@ -190,11 +268,13 @@ exports.forgotPassword = catchAsyncError(async (req, res, next) => {
 
   await user.save({ validateBeforeSave: false });
 
-  const resetPasswordUrl = `${req.protocol}://${req.get(
-    "host"
-  )}/password/reset/${resetToken}`;
+  // const resetPasswordUrl = `${req.protocol}://${req.get(
+  //   "host"
+  // )}/resetpassword?token=${resetToken}`;
 
-  const message = `Your password reset token is :- \n\n ${resetPasswordUrl} \n\nIf you have not requested this email then, please ignore it.`;
+  const resetPasswordUrl = `${req.protocol}://localhost:3000/resetpassword?token=${resetToken}`;
+
+  // const message = `Your password reset token is :- \n\n ${resetPasswordUrl} \n\nIf you have not requested this email then, please ignore it.`;
 
   // res.status(200).json({
   //   success: true,
@@ -203,9 +283,12 @@ exports.forgotPassword = catchAsyncError(async (req, res, next) => {
   // });
   try {
     await sendEmail({
+      type: "RESET_PASSWORD",
       email: user.email,
+      name: user.name,
+      resetPasswordUrl,
+      req,
       subject: `Cu Food Password Recovery`,
-      message,
     });
 
     res.status(200).json({
@@ -227,7 +310,9 @@ exports.resetPassword = catchAsyncError(async (req, res, next) => {
   // creating token hash
 
   if (req.body.password !== req.body.confirmPassword) {
-    return next(new ErrorHandler("Password does not match with confirm password", 400));
+    return next(
+      new ErrorHandler("Password does not match with confirm password", 400)
+    );
   }
 
   const resetPasswordToken = crypto
@@ -240,6 +325,19 @@ exports.resetPassword = catchAsyncError(async (req, res, next) => {
   });
 
   if (!user) {
+    return next(
+      new ErrorHandler(
+        "Reset Password Token is invalid or has been expired",
+        400
+      )
+    );
+  }
+
+  if (user.resetPasswordExpire < Date.now()) {
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpire = undefined;
+
+    await user.save();
     return next(
       new ErrorHandler(
         "Reset Password Token is invalid or has been expired",
@@ -294,7 +392,6 @@ exports.vendorWithdrawalRequest = catchAsyncError(async (req, res, next) => {
     key_id: process.env.RAZOR_KEY_ID,
     key_secret: process.env.RAZOR_KEY_SECRET,
   });
-  console.log("amount", amount);
 
   const withdrawalOptions = {
     transfers: [

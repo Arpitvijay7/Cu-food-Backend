@@ -5,7 +5,7 @@ const User = require("../models/userModel");
 
 exports.isAuthenticatedUser = catchAsyncError(async (req, res, next) => {
   // let  {token}  = req.headers;
-  let {token}  = req.cookies;
+  let { token } = req.cookies;
   let googleToken = req.cookies["connect.sid"];
 
   if (!token && !googleToken) {
@@ -18,7 +18,16 @@ exports.isAuthenticatedUser = catchAsyncError(async (req, res, next) => {
     const decodedData = jwt.verify(token, process.env.JWT_SECRET_KEY);
     req.user = await User.findById(decodedData.id);
   }
-  
+
+  // if (req.user.isVerified === false) {
+  //   return next(
+  //     new ErrorHandler(
+  //       `You have to verify your email to access this resource`,
+  //       400
+  //     )
+  //   );
+  // }
+
   next();
 });
 
@@ -32,6 +41,7 @@ exports.authorizedRoles = (...roles) => {
         )
       );
     }
+
     next();
   };
 };

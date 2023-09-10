@@ -13,7 +13,9 @@ const {
   getLoggedInUser,
   removeUser,
   makeUserAdmin,
-  vendorWithdrawalRequest
+  vendorWithdrawalRequest,
+  resetPassword,
+  verifyEmail
 } = require("../controller/userController");
 
 const router = express.Router();
@@ -49,9 +51,11 @@ router.get('/googleLogout',isAuthenticatedUser,googleLogout);
 
 router.route("/logout").get(isAuthenticatedUser, logoutUser);
 
-router.route("/password/forget").post(isAuthenticatedUser, forgotPassword);
+router.route("/password/forgot").post(forgotPassword);
 
-router.route("/password/reset/:token").put(isAuthenticatedUser, forgotPassword);
+router.route("/password/reset/:token").put(resetPassword);
+
+router.route("/verify/:token").put(verifyEmail);
 
 router.route('/vendorWithdrwal').get(isAuthenticatedUser , authorizedRoles('vendor','admin'),vendorWithdrawalRequest);
 

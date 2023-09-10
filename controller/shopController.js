@@ -3,6 +3,7 @@ const ApiFeatures = require("../utils/apifeatures");
 const ErrorHandler = require("../utils/ErrorHandler");
 const Shop = require("../models/Shop");
 const Food = require("../models/Food");
+const UnverifiedShop = require("../models/UnverifiedShop");
 const multer = require("multer");
 const path = require("path");
 const { dataUri, getdataUri } = require("../utils/dataUri");
@@ -31,7 +32,8 @@ exports.createShop = catchAsyncError(async (req, res, next) => {
 
   req.body.image = img_obj;
   req.body.vendor = req.user._id;
-  const shop = await Shop.create(req.body);
+
+  const shop = await UnverifiedShop.create(req.body);
 
   if (!shop) {
     return next(
@@ -51,7 +53,6 @@ exports.getAllshops = catchAsyncError(async (req, res, next) => {
 
   const apiFeatures = new ApiFeatures(Shop.find({}), req.query).search();
 
-  console.log(apiFeatures.query);
   const shops = await apiFeatures.query;
 
   res.status(201).json({
@@ -148,7 +149,7 @@ exports.getMenu = catchAsyncError(async (req, res, next) => {
 
   res.status(200).json({
     message: "Success",
-    shopName : shop.name,
+    shopName: shop.name,
     Menu,
   });
 });
@@ -202,6 +203,27 @@ exports.changeShopStatus = catchAsyncError(async (req, res, next) => {
   }
 
   await shop.save();
+
+  res.status(200).json({
+    message: "Success",
+    shop,
+  });
+});
+
+exports.verifyShop = catchAsyncError(async (req, res, next) => {
+  const id = req.params.id;
+
+  const Unveriedshop = await UnverifiedShop.findById({ vendor: id });
+
+  if (!Unveriedshop) {
+    return next(new ErrorHandler("No such shop found to verify", 404));
+  }
+
+  const shopItem = Unveriedshop;
+  await Unveriedshop.deleteOne();
+  shopItem._id = undefined;
+
+  const shop = await Shop.create(shopItem);
 
   res.status(200).json({
     message: "Success",
