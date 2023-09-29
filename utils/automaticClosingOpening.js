@@ -14,6 +14,11 @@ exports.automaticClosingOpening = catchAsyncError(async (req, res, next) => {
       shop[i].TodayRejectedOrder = [];
 
       await shop[i].save();
+
+      for(let j = 0; j < shop[i].menu.length; j++){
+        shop[i].menu[j].stockAvailability = true;
+        await shop[i].save();
+      }
     }
     
     if (time == shop[i].closeAt) {
