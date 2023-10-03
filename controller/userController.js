@@ -51,18 +51,14 @@ exports.registerUser = catchAsyncError(async (req, res, next) => {
 
   let verifyEmailUrl;
   if (process.env.NODE_ENV === "production") {
-    verifyEmailUrl = `${req.protocol}://${req.get(
-      "host"
-    )}/verifyEmail?token=${verificationtoken}`;
+    verifyEmailUrl = `https://cufoodz.com/verifyEmail?token=${verificationtoken}`;
   } else {
     verifyEmailUrl = `${req.protocol}://localhost:3000/verifyEmail?token=${verificationtoken}`;
   }
 
   if (role === "vendor") {
     if (process.env.NODE_ENV === "production") {
-      verifyEmailUrl = `${req.protocol}://${req.get(
-        "host"
-      )}/vendor/verifyEmail?token=${verificationtoken}`;
+      verifyEmailUrl = `https://cufoodz.com/vendor/verifyEmail?token=${verificationtoken}`;
     } else {
       verifyEmailUrl = `${req.protocol}://localhost:3000/vendor/verifyEmail?token=${verificationtoken}`;
     }
@@ -280,13 +276,12 @@ exports.forgotPassword = catchAsyncError(async (req, res, next) => {
   const resetToken = await user.getResetPasswordToken();
 
   await user.save({ validateBeforeSave: false });
-
+  
+  let resetPasswordUrl;
   if (process.env.NODE_ENV === "production") {
-    const resetPasswordUrl = `${req.protocol}://${req.get(
-      "host"
-    )}/resetpassword?token=${resetToken}`;
+     resetPasswordUrl = `https://cufoodz.com/resetpassword?token=${resetToken}`;
   } else {
-    const resetPasswordUrl = `${req.protocol}://localhost:3000/resetpassword?token=${resetToken}`;
+     resetPasswordUrl = `${req.protocol}://localhost:3000/resetpassword?token=${resetToken}`;
   }
 
   try {
