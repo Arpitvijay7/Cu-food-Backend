@@ -49,10 +49,23 @@ exports.registerUser = catchAsyncError(async (req, res, next) => {
   const verificationtoken = await user.getEmailVerificationToken();
   await user.save({ validateBeforeSave: false });
 
-  let verifyEmailUrl = `${req.protocol}://localhost:3000/verifyEmail?token=${verificationtoken}`;
+  let verifyEmailUrl;
+  if (process.env.NODE_ENV === "production") {
+    verifyEmailUrl = `${req.protocol}://${req.get(
+      "host"
+    )}/verifyEmail?token=${verificationtoken}`;
+  } else {
+    verifyEmailUrl = `${req.protocol}://localhost:3000/verifyEmail?token=${verificationtoken}`;
+  }
 
   if (role === "vendor") {
-    verifyEmailUrl = `${req.protocol}://localhost:3000/vendor/verifyEmail?token=${verificationtoken}`;
+    if (process.env.NODE_ENV === "production") {
+      verifyEmailUrl = `${req.protocol}://${req.get(
+        "host"
+      )}/vendor/verifyEmail?token=${verificationtoken}`;
+    } else {
+      verifyEmailUrl = `${req.protocol}://localhost:3000/vendor/verifyEmail?token=${verificationtoken}`;
+    }
   }
 
   try {
@@ -268,19 +281,14 @@ exports.forgotPassword = catchAsyncError(async (req, res, next) => {
 
   await user.save({ validateBeforeSave: false });
 
-  // const resetPasswordUrl = `${req.protocol}://${req.get(
-  //   "host"
-  // )}/resetpassword?token=${resetToken}`;
+  if (process.env.NODE_ENV === "production") {
+    const resetPasswordUrl = `${req.protocol}://${req.get(
+      "host"
+    )}/resetpassword?token=${resetToken}`;
+  } else {
+    const resetPasswordUrl = `${req.protocol}://localhost:3000/resetpassword?token=${resetToken}`;
+  }
 
-  const resetPasswordUrl = `${req.protocol}://localhost:3000/resetpassword?token=${resetToken}`;
-
-  // const message = `Your password reset token is :- \n\n ${resetPasswordUrl} \n\nIf you have not requested this email then, please ignore it.`;
-
-  // res.status(200).json({
-  //   success: true,
-  //   message: `Email sent to ${user.email} successfully`,
-  //   resetPasswordUrl,
-  // });
   try {
     await sendEmail({
       type: "RESET_PASSWORD",
