@@ -44,6 +44,7 @@ exports.sendPushNotification = async (userId, message ,body) => {
                 click_action: "FLUTTER_NOTIFICATION_CLICK",
                 icon: "myicon", //Default Icon
                 sound: "mySound", //Default sound
+                vibrate: "true", //default vibration
                 // badge: badgeCount, example:1 or 2 or 3 or etc....
               },
               // data: {
