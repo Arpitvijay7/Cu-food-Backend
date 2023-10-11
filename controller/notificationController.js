@@ -31,7 +31,7 @@ exports.registerToken = catchAsyncError(async (req, res, next) => {
     return next(new ErrorHandler("Something went wrong", 500));
   }
 
-  sendPushNotification(user, "Cu", "Welcome to Cu Food");
+  // sendPushNotification(user, "Cu", "Welcome to Cu Food");
   // console.log("Push Notification:- " + pushNotification);
   console.log("dcdcsdcs");
 

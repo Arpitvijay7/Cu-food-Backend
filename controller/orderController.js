@@ -69,7 +69,9 @@ exports.verifyOrder = catchAsyncError(async (req, res) => {
     let fooditmes = cart.Food;
 
     let ShopItems = await Shop.findById(cart.shop);
+
     await sendPushNotification(ShopItems.vendor, "CU FOODZ", "You have a new order");
+    
     const user = await User.findById(req.user._id);
 
     const orderItems = {
