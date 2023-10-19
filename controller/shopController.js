@@ -51,13 +51,10 @@ exports.getAllshops = catchAsyncError(async (req, res, next) => {
   const resultPerPage = 10;
   const totalShops = await Shop.countDocuments();
 
-  const apiFeatures = new ApiFeatures(Shop.find({}), req.query).search();
+  const apiFeatures = new ApiFeatures(Shop.find({}), req.query).search().pagination(resultPerPage);;
   
   let shops = await apiFeatures.query;
 
-  apiFeatures.pagination(resultPerPage);
-  
-  shops = await apiFeatures.query;
   
   res.status(201).json({
     success: true,
