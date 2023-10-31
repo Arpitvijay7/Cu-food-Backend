@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        /* Basic CSS styling for the template */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        .order-details {
+            border: 1px solid #ccc;
+            padding: 20px;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        .title {
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .info {
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="order-details">
+        <p class="title">Order Details</p>
+        <p class="info">Order Placed Date: <span id="order-date">{{Order_Date}}</span></p>
+        <p class="info">Order Total Price: Rs. <span id="order-total">{{Order_Total}}</span></p>
+        <p class="info">User Phone Number: <span id="user-phone">{{User_Phone}}</span></p>
+        <p class="info">Shop Name: <span id="shop-name">{{Shop_Name}}</span></p>
+    </div>
+</body>
+</html>
