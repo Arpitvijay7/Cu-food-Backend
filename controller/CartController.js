@@ -7,9 +7,9 @@ const ErrorHandler = require("../utils/ErrorHandler");
 // Get All items of a Cart
 exports.getAllItemsFromCart = catchAsyncError(async (req, res, next) => {
   const cart = await Cart.findOne({ userId: req.user._id });
-  
+
   const shop = await Shop.findById(cart.shop);
-  
+
   let shopStatus = undefined;
 
   if (shop) {
@@ -23,6 +23,10 @@ exports.getAllItemsFromCart = catchAsyncError(async (req, res, next) => {
   res.status(200).json({
     message: `Your Cart Items`,
     cart: cart.Food,
+    deliveryData: {
+      roomDelivery: shop.roomDelivery,
+      deliveryLocations: shop.DeliveryLocation,
+    },
     totalSum: cart.totalSum,
     shopStatus: shopStatus,
   });
@@ -109,12 +113,8 @@ exports.addToCart = catchAsyncError(async (req, res, next) => {
     foodId: food.id,
   };
 
-
-
   cart.Food.push(foodItem);
   await cart.save();
-
-
 
   res.status(200).json({
     message: `Item Successfully added in Cart`,
