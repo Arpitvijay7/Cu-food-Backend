@@ -8,6 +8,7 @@ const multer = require("multer");
 const path = require("path");
 const { dataUri, getdataUri } = require("../utils/dataUri");
 const cloudinary = require("cloudinary");
+const { log } = require("console");
 
 // Create a shop
 exports.createShop = catchAsyncError(async (req, res, next) => {
@@ -51,11 +52,12 @@ exports.getAllshops = catchAsyncError(async (req, res, next) => {
   const resultPerPage = 10;
   const totalShops = await Shop.countDocuments();
 
-  const apiFeatures = new ApiFeatures(Shop.find({}), req.query).search().pagination(resultPerPage);;
-  
+  const apiFeatures = new ApiFeatures(Shop.find({}), req.query)
+    .search()
+    .pagination(resultPerPage);
+
   let shops = await apiFeatures.query;
 
-  
   res.status(201).json({
     success: true,
     shops,
@@ -213,16 +215,32 @@ exports.changeShopStatus = catchAsyncError(async (req, res, next) => {
 
 exports.verifyShop = catchAsyncError(async (req, res, next) => {
   const id = req.params.id;
-
-  const Unveriedshop = await UnverifiedShop.findById({ vendor: id });
+  console.log(id);
+  let Unveriedshop = await UnverifiedShop.findOne({ vendor: id });
 
   if (!Unveriedshop) {
     return next(new ErrorHandler("No such shop found to verify", 404));
   }
-
-  const shopItem = Unveriedshop;
+  let shopItem = {
+    image: Unveriedshop.image,
+    rating: Unveriedshop.rating,
+    name: Unveriedshop.name,
+    description: Unveriedshop.description,
+    menu: Unveriedshop.menu,
+    roomDelivery: Unveriedshop.roomDelivery,
+    DeliveryLocation: Unveriedshop.DeliveryLocation,
+    vendor: Unveriedshop.vendor,
+    status: Unveriedshop.status,
+    openAt: Unveriedshop.openAt,
+    closeAt: Unveriedshop.closeAt,
+    TotalEarnings: Unveriedshop.TotalEarnings,
+    TodaysEarnings: Unveriedshop.TodaysEarnings,
+    Balance: Unveriedshop.Balance,
+    TodayAcceptedOrder: Unveriedshop.TodayAcceptedOrder,
+    TodayRejectedOrder: Unveriedshop.TodayRejectedOrder,
+    createdAt: Unveriedshop.createdAt,
+  };
   await Unveriedshop.deleteOne();
-  shopItem._id = undefined;
 
   const shop = await Shop.create(shopItem);
 

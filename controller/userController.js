@@ -4,7 +4,7 @@ const User = require("../models/userModel");
 const ErrorHandler = require("../utils/ErrorHandler");
 const sendToken = require("../utils/JwtToken");
 const crypto = require("crypto");
-const sendEmail = require("../utils/sendEmail");
+const myModule = require("../utils/sendEmail");
 const Shop = require("../models/Shop");
 const Razorpay = require("razorpay");
 
@@ -61,11 +61,12 @@ exports.registerUser = catchAsyncError(async (req, res, next) => {
       verifyEmailUrl = `https://cufoodz.com/vendor/verifyEmail?token=${verificationtoken}`;
     } else {
       verifyEmailUrl = `${req.protocol}://localhost:3000/vendor/verifyEmail?token=${verificationtoken}`;
+      console.log(verifyEmailUrl);
     }
   }
 
   try {
-    await sendEmail({
+    await myModule.sendEmail({
       type: "VERIFY_EMAIL",
       email: user.email,
       name: user.name,
@@ -285,7 +286,7 @@ exports.forgotPassword = catchAsyncError(async (req, res, next) => {
   }
 
   try {
-    await sendEmail({
+    await myModule.sendEmail({
       type: "RESET_PASSWORD",
       email: user.email,
       name: user.name,

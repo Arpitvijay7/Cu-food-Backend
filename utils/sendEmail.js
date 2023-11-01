@@ -91,5 +91,10 @@ const newOrder = catchAsyncError(async (options) => {
 
 });
 
-module.exports = sendEmail;
-module.exports = newOrder;
+const moduleExports = {
+  sendEmail: sendEmail,
+  newOrder: newOrder
+};
+
+module.exports = moduleExports;
+

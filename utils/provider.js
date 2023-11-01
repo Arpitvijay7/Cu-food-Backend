@@ -23,7 +23,7 @@ exports.connectPassport = catchAsyncError(() => {
         if (!user) {
           const newUser = await User.create({
             name: profile.displayName,
-            email: "googleLogin@gmail.com",
+            email: `Google@${profile.id}.com`,
             password: "undefined",
             googleId: profile.id,
             isVerified: true,

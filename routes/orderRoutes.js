@@ -12,6 +12,7 @@ const {
   getOrderByOtp,
   orderResponse,
   myDeliveredOrders,
+  orderViaCash,
 } = require("../controller/orderController");
 const { isAuthenticatedUser, authorizedRoles } = require("../middleware/auth");
 
@@ -21,6 +22,8 @@ const router = express.Router();
 router.route("/checkout").post(isAuthenticatedUser, checkout);
 
 router.route("/verifyOrder").post(isAuthenticatedUser, verifyOrder);
+
+router.route("/OrderviaCash").post(isAuthenticatedUser, orderViaCash);
 
 router.route("/myOrders").get(isAuthenticatedUser, myOrders);
 

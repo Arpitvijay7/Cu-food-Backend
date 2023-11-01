@@ -10,6 +10,7 @@ const UnverifiedshopSchema = new mongoose.Schema({
     type: String,
     required: [true, "Please enter Shop Despriction"],
   },
+  
   image: {
     path: String,
     public_id: String,
@@ -20,6 +21,15 @@ const UnverifiedshopSchema = new mongoose.Schema({
       type: mongoose.Schema.ObjectId,
       ref: "Food",
     },
+  ],
+  roomDelivery: {
+    type: Boolean,
+    default: false,
+  },
+  DeliveryLocation : [
+    {
+      type: String,
+    }
   ],
   vendor: {
     type: mongoose.Schema.ObjectId,

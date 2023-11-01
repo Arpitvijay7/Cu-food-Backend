@@ -8,6 +8,7 @@ const {
   getMenu,
   getVendorShop,
   changeShopStatus,
+  verifyShop,
 } = require("../controller/shopController");
 const { isAuthenticatedUser, authorizedRoles } = require("../middleware/auth");
 const singleUpload = require("../middleware/multer");
@@ -26,6 +27,8 @@ router
     singleUpload,
     createShop
   );
+
+router.route('/verifyShop/:id').get(isAuthenticatedUser, authorizedRoles("admin"), verifyShop);
 
 router
   .route("/deleteShop/:id")

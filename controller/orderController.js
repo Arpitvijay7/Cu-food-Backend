@@ -8,7 +8,7 @@ const Shop = require("../models/Shop");
 const Food = require("../models/Food");
 const { sendPushNotification } = require("../utils/pushNotification");
 const User = require("../models/userModel");
-const newOrder = require("../utils/sendEmail");
+const myModule = require("../utils/sendEmail");
 
 // Create a new order
 exports.checkout = catchAsyncError(async (req, res) => {
@@ -71,8 +71,12 @@ exports.verifyOrder = catchAsyncError(async (req, res) => {
 
     let ShopItems = await Shop.findById(cart.shop);
 
-    await sendPushNotification(ShopItems.vendor, "CU FOODZ", "You have a new order");
-    
+    await sendPushNotification(
+      ShopItems.vendor,
+      "CU FOODZ",
+      "You have a new order"
+    );
+
     const user = await User.findById(req.user._id);
 
     const orderItems = {
@@ -86,7 +90,7 @@ exports.verifyOrder = catchAsyncError(async (req, res) => {
       totalPrice: cart.totalSum,
       paidAt: Date.now(),
       shop: cart.shop,
-      vendor : ShopItems.vendor
+      vendor: ShopItems.vendor,
     };
 
     const order = await Order.create(orderItems);
@@ -97,12 +101,12 @@ exports.verifyOrder = catchAsyncError(async (req, res) => {
     ShopItems.TodayAcceptedOrder.push(order._id);
     await ShopItems.save();
 
-    await newOrder({
-      date : order.createdAt,
-      totalPrice : cart.totalSum,
-      phoneNo :7737308877,
-      shopName : cart.Food[0].shopName,
-    })
+    await myModule.newOrder({
+      date: order.createdAt,
+      totalPrice: cart.totalSum,
+      phoneNo: 7737308877,
+      shopName: cart.Food[0].shopName,
+    });
 
     if (deliveryCheckbox) {
       return res.status(200).json({
@@ -121,9 +125,86 @@ exports.verifyOrder = catchAsyncError(async (req, res) => {
   }
 });
 
+exports.orderViaCash = catchAsyncError(async (req, res) => {
+  const { deliveryCheckbox, address, paymentInfo , phoneNumber } = req.body;
+
+  const cart = await Cart.findOne({ userId: req.user._id });
+
+  if (!cart) {
+    return next(new ErrorHandler(`No such cart found`, 400));
+  }
+  if (!req.user) {
+    return next(new ErrorHandler("Login first to place the order", 401));
+  }
+  let deliveryAddress = undefined;
+  let Otp = undefined;
+  if (deliveryCheckbox) {
+    deliveryAddress = address;
+  } else {
+    const random = Math.floor(Math.random() * 1000000);
+    Otp = random;
+  }
+  let fooditmes = cart.Food;
+
+  let ShopItems = await Shop.findById(cart.shop);
+
+  await sendPushNotification(
+    ShopItems.vendor,
+    "CU FOODZ",
+    "You have a new order"
+  );
+
+  const user = await User.findById(req.user._id);
+
+  const orderItems = {
+    user: req.user._id,
+    userName: user.name,
+    paymentInfo,
+    delivery: deliveryCheckbox,
+    deliveryAddress,
+    Otp,
+    OrderItems: fooditmes,
+    totalPrice: cart.totalSum,
+    paidAt: Date.now(),
+    shop: cart.shop,
+    vendor: ShopItems.vendor,
+  };
+
+  const order = await Order.create(orderItems);
+  ShopItems.Balance = ShopItems.Balance + cart.totalSum;
+  ShopItems.TotalEarnings = ShopItems.TotalEarnings + cart.totalSum;
+  ShopItems.TodaysEarnings = ShopItems.TodaysEarnings + cart.totalSum;
+
+  ShopItems.TodayAcceptedOrder.push(order._id);
+  await ShopItems.save();
+
+  await myModule.newOrder({
+    date: order.createdAt,
+    totalPrice: cart.totalSum,
+    phoneNo: phoneNumber,
+    shopName: cart.Food[0].shopName,
+  });
+
+  if (deliveryCheckbox) {
+    return res.status(200).json({
+      success: true,
+      order,
+    });
+  } else {
+    return res.status(200).json({
+      success: true,
+      order,
+      Otp,
+    });
+  }
+});
+
 // get logged in user  Orders
 exports.myOrders = catchAsyncError(async (req, res) => {
-  const orders = await Order.find({ user: req.user._id , orderStatus : {$in :['Placed' , 'Preparing']}});
+  const orders = await Order.find({
+    user: req.user._id,
+    orderStatus: { $in: ["Placed", "Preparing"] },
+  });
   orders.reverse();
   res.status(200).json({
     success: true,
@@ -132,7 +213,10 @@ exports.myOrders = catchAsyncError(async (req, res) => {
 });
 
 exports.myDeliveredOrders = catchAsyncError(async (req, res) => {
-  const orders = await Order.find({ user: req.user._id , orderStatus : 'Delivered'});
+  const orders = await Order.find({
+    user: req.user._id,
+    orderStatus: "Delivered",
+  });
   orders.reverse();
   res.status(200).json({
     success: true,
@@ -164,7 +248,7 @@ exports.getAllOrders = catchAsyncError(async (req, res) => {
     totalAmount += order.totalPrice;
   });
   orders.reverse();
-  
+
   res.status(200).json({
     success: true,
     totalAmount,
@@ -206,7 +290,7 @@ exports.getNewOrders = catchAsyncError(async (req, res) => {
     totalAmount += order.totalPrice;
   });
   orders.reverse();
-  
+
   res.status(200).json({
     success: true,
     totalAmount,
@@ -228,7 +312,6 @@ exports.getAllActiveOrders = catchAsyncError(async (req, res) => {
   });
   orders.reverse();
 
-
   res.status(200).json({
     success: true,
     totalAmount,
@@ -238,7 +321,10 @@ exports.getAllActiveOrders = catchAsyncError(async (req, res) => {
 
 //get All Active Orders -- Admin
 exports.getAllDelieveredOrders = catchAsyncError(async (req, res) => {
-  const orders = await Order.find({ orderStatus: "Delivered" ,vendor: req.user._id,});
+  const orders = await Order.find({
+    orderStatus: "Delivered",
+    vendor: req.user._id,
+  });
 
   let totalAmount = 0;
 
@@ -246,7 +332,7 @@ exports.getAllDelieveredOrders = catchAsyncError(async (req, res) => {
     totalAmount += order.totalPrice;
   });
   orders.reverse();
-  
+
   res.status(200).json({
     success: true,
     totalAmount,
