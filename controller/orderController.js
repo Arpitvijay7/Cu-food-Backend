@@ -83,8 +83,10 @@ exports.verifyOrder = catchAsyncError(async (req, res) => {
       user: req.user._id,
       userName: user.name,
       paymentInfo,
+      phoneNumber,
       delivery: deliveryCheckbox,
       deliveryAddress,
+      deliveryType: ShopItems.roomDelivery ? "Room" : "Normal",
       Otp,
       OrderItems: fooditmes,
       totalPrice: cart.totalSum,
@@ -112,12 +114,14 @@ exports.verifyOrder = catchAsyncError(async (req, res) => {
       return res.status(200).json({
         success: true,
         order,
+        phoneNumber,
       });
     } else {
       return res.status(200).json({
         success: true,
         order,
         Otp,
+        phoneNumber,
       });
     }
   } else {
@@ -126,7 +130,7 @@ exports.verifyOrder = catchAsyncError(async (req, res) => {
 });
 
 exports.orderViaCash = catchAsyncError(async (req, res) => {
-  const { deliveryCheckbox, address, paymentInfo , phoneNumber } = req.body;
+  const { deliveryCheckbox, address, paymentInfo, phoneNumber } = req.body;
 
   const cart = await Cart.findOne({ userId: req.user._id });
 
@@ -160,11 +164,13 @@ exports.orderViaCash = catchAsyncError(async (req, res) => {
     user: req.user._id,
     userName: user.name,
     paymentInfo,
+    phoneNumber,
     delivery: deliveryCheckbox,
     deliveryAddress,
     Otp,
     OrderItems: fooditmes,
     totalPrice: cart.totalSum,
+    deliveryType: ShopItems.roomDelivery ? "Room" : "Normal",
     paidAt: Date.now(),
     shop: cart.shop,
     vendor: ShopItems.vendor,

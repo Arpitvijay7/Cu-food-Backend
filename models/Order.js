@@ -10,6 +10,13 @@ const orderSchema = new mongoose.Schema({
     type: String,
   },
 
+  phoneNumber: {
+    type: Number,
+    required: true,
+    minlength: 10,
+    maxlength: 10,
+  },
+
   paymentInfo: {
     id: {
       type: String,
@@ -21,6 +28,11 @@ const orderSchema = new mongoose.Schema({
     },
   },
   delivery: Boolean,
+
+  deliveryType: {
+    type: String,
+    default: "Normal",
+  },
 
   deliveryAddress: {
     hostel: {
