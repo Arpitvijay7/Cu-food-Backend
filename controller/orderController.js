@@ -8,7 +8,7 @@ const Shop = require("../models/Shop");
 const Food = require("../models/Food");
 const { sendPushNotification } = require("../utils/pushNotification");
 const User = require("../models/userModel");
-const myModule = require("../utils/sendEmail");
+const newOrder = require("../utils/newOrderEmail");
 
 // Create a new order
 exports.checkout = catchAsyncError(async (req, res) => {
@@ -101,7 +101,7 @@ exports.verifyOrder = catchAsyncError(async (req, res) => {
     ShopItems.TodayAcceptedOrder.push(order._id);
     await ShopItems.save();
 
-    await myModule.newOrder({
+    await newOrder({
       date: order.createdAt,
       totalPrice: cart.totalSum,
       phoneNo: 7737308877,
@@ -178,7 +178,7 @@ exports.orderViaCash = catchAsyncError(async (req, res) => {
   ShopItems.TodayAcceptedOrder.push(order._id);
   await ShopItems.save();
 
-  await myModule.newOrder({
+  await newOrder({
     date: order.createdAt,
     totalPrice: cart.totalSum,
     phoneNo: phoneNumber,

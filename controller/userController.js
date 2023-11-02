@@ -4,7 +4,7 @@ const User = require("../models/userModel");
 const ErrorHandler = require("../utils/ErrorHandler");
 const sendToken = require("../utils/JwtToken");
 const crypto = require("crypto");
-const myModule = require("../utils/sendEmail");
+const sendEmail = require("../utils/sendEmail");
 const Shop = require("../models/Shop");
 const Razorpay = require("razorpay");
 
@@ -66,7 +66,7 @@ exports.registerUser = catchAsyncError(async (req, res, next) => {
   }
 
   try {
-    await myModule.sendEmail({
+    await sendEmail({
       type: "VERIFY_EMAIL",
       email: user.email,
       name: user.name,
@@ -286,7 +286,7 @@ exports.forgotPassword = catchAsyncError(async (req, res, next) => {
   }
 
   try {
-    await myModule.sendEmail({
+    await sendEmail({
       type: "RESET_PASSWORD",
       email: user.email,
       name: user.name,
