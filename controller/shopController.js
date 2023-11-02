@@ -54,7 +54,6 @@ exports.getAllshops = catchAsyncError(async (req, res, next) => {
 
   const apiFeatures = new ApiFeatures(Shop.find({}), req.query)
     .search()
-    .pagination(resultPerPage);
 
   let shops = await apiFeatures.query;
 
