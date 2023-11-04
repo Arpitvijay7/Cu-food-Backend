@@ -10,7 +10,6 @@ const shopSchema = new mongoose.Schema({
     type: String,
     required: [true, "Please enter Shop Despriction"],
   },
-  
   image: {
     path: String,
     public_id: String,

@@ -1,4 +1,5 @@
 const catchAsyncError = require("../middleware/catchAsyncError");
+const Food = require("../models/Food");
 const Shop = require("../models/Shop");
 
 exports.automaticClosingOpening = catchAsyncError(async (req, res, next) => {
@@ -7,23 +8,28 @@ exports.automaticClosingOpening = catchAsyncError(async (req, res, next) => {
   const time = date.getHours() + ":" + date.getMinutes();
 
   for (let i = 0; i < shop.length; i++) {
-    if (time == shop[i].openAt) {
-      shop[i].status = "open";
-      shop[i].TodaysEarnings = 0;
-      shop[i].TodayAcceptedOrder = [];
-      shop[i].TodayRejectedOrder = [];
-
-      await shop[i].save();
-
-      for(let j = 0; j < shop[i].menu.length; j++){
-        shop[i].menu[j].stockAvailability = true;
+    if (time >= shop[i].closeAt) {
+      if (shop[i].status == "open") {
+        shop[i].status = "closed";
         await shop[i].save();
       }
     }
-    
-    if (time == shop[i].closeAt) {
-      shop[i].status = "closed";
-      await shop[i].save();
+    if (time >= shop[i].openAt && time < shop[i].closeAt) {
+      if (shop[i].status == "closed") {
+        shop[i].status = "open";
+
+        shop[i].TodaysEarnings = 0;
+        shop[i].TodayAcceptedOrder = [];
+        shop[i].TodayRejectedOrder = [];
+
+        for (let j = 0; j < shop[i].menu.length; j++) {
+          let food = await Food.findById(shop[i].menu[j]);
+          food.stockAvailability = true;
+          await food.save();
+        }
+
+        await shop[i].save();
+      }
     }
   }
 });
