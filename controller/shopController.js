@@ -123,7 +123,7 @@ exports.updateShop = catchAsyncError(async (req, res, next) => {
 // Get Menu
 exports.getMenu = catchAsyncError(async (req, res, next) => {
   const id = req.params.id;
-
+  const resultPerPage = 10;
   const shop = await Shop.findById(id);
 
   if (!shop) {
@@ -153,6 +153,7 @@ exports.getMenu = catchAsyncError(async (req, res, next) => {
     message: "Success",
     shopName: shop.name,
     Menu,
+    MenuLength: shop.menu.length,
   });
 });
 
