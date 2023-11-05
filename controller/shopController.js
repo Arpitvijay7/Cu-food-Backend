@@ -123,7 +123,8 @@ exports.updateShop = catchAsyncError(async (req, res, next) => {
 // Get Menu
 exports.getMenu = catchAsyncError(async (req, res, next) => {
   const id = req.params.id;
-  const resultPerPage = 10;
+  const resultPerPage = 9;
+  let page = req.query.page || 1;
   const shop = await Shop.findById(id);
 
   if (!shop) {
@@ -131,11 +132,8 @@ exports.getMenu = catchAsyncError(async (req, res, next) => {
   }
 
   let Menu = [];
-  let tt = [];
 
   for (let i = 0; i < shop.menu.length; i++) {
-    const it = await Food.findById(shop.menu[i]);
-    tt.push(it);
     const apiFeatures = new ApiFeatures(
       Food.find({}),
       req.query,
@@ -148,11 +146,13 @@ exports.getMenu = catchAsyncError(async (req, res, next) => {
       Menu.push(item[0]);
     }
   }
-
+  let startIndex = (page - 1) * resultPerPage;
+  let endIndex = page * resultPerPage;
+  
   res.status(200).json({
     message: "Success",
     shopName: shop.name,
-    Menu,
+    Menu : Menu.slice(startIndex, endIndex),
     MenuLength: shop.menu.length,
   });
 });
