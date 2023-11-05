@@ -10,7 +10,7 @@ const UnverifiedshopSchema = new mongoose.Schema({
     type: String,
     required: [true, "Please enter Shop Despriction"],
   },
-  
+
   image: {
     path: String,
     public_id: String,
@@ -22,15 +22,27 @@ const UnverifiedshopSchema = new mongoose.Schema({
       ref: "Food",
     },
   ],
+  minDeliveryOrder: {
+    type: Number,
+    required: [true, "Please enter minimum delivery order"],
+  },
+  tags: {
+    type: String,
+    required: [true, "Please enter tags"],
+  },
   roomDelivery: {
     type: Boolean,
     default: false,
   },
-  DeliveryLocation : [
+  DeliveryLocation: [
     {
       type: String,
-    }
+    },
   ],
+  deliveryPrice: {
+    type: Number,
+    default: 20,
+  },
   vendor: {
     type: mongoose.Schema.ObjectId,
     ref: "User",

@@ -110,11 +110,11 @@ exports.updateFood = catchAsyncError(async (req, res, next) => {
 
     if (fileuri) {
       myCloud = await cloudinary.v2.uploader.upload(fileuri.content);
-      // destroyedImg = await cloudinary.uploader.destroy(food.image.public_id);
+      destroyedImg = await cloudinary.uploader.destroy(food.image.public_id);
 
-      // if (!destroyedImg) {
-      //   return next(new ErrorHandler("Error in deleting image", 404));
-      // }
+      if (!destroyedImg) {
+        return next(new ErrorHandler("Error in deleting image", 404));
+      }
     }
 
     img_obj = {

@@ -21,14 +21,26 @@ const shopSchema = new mongoose.Schema({
       ref: "Food",
     },
   ],
+  minDeliveryOrder: {
+    type: Number,
+    required: [true, "Please enter minimum delivery order"],
+  },
+  tags: {
+    type: String,
+    required: [true, "Please enter tags"],
+  },
+  deliveryPrice: {
+    type: Number,
+    default: 20,
+  },
   roomDelivery: {
     type: Boolean,
     default: false,
   },
-  DeliveryLocation : [
+  DeliveryLocation: [
     {
       type: String,
-    }
+    },
   ],
   vendor: {
     type: mongoose.Schema.ObjectId,

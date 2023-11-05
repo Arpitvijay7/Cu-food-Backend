@@ -13,13 +13,14 @@ exports.registerUser = catchAsyncError(async (req, res, next) => {
   let { email, password } = req.body;
 
   const role = req.query.role;
+
   console.log(email, password);
   if (!email || !password) {
     return next(
       new ErrorHandler(`Please enter email and password to register`, 400)
     );
   }
-
+  console.log(role);
   if (role === "vendor") {
     vendor_account_details = {};
     vendor_account_details.accountNumber = req.body.accountNumber;
@@ -136,7 +137,7 @@ exports.verifyEmail = catchAsyncError(async (req, res, next) => {
 // Logout User
 exports.loginUser = catchAsyncError(async (req, res, next) => {
   let { email, password } = req.body;
-
+  console.log(email, password);
   if (!email || !password) {
     return next(
       new ErrorHandler(`Please enter email and password to login`, 400)
@@ -149,9 +150,9 @@ exports.loginUser = catchAsyncError(async (req, res, next) => {
       new ErrorHandler(`Please enter a valid email or password`, 401)
     );
   }
-
+  console.log(user);
   const isPasswordMatched = await user.comparePassword(password);
-
+  console.log(isPasswordMatched);
   if (!isPasswordMatched) {
     return next(new ErrorHandler("Invalid Email or Password", 401));
   }

@@ -4,7 +4,6 @@ const ErrorHandler = require("../utils/ErrorHandler");
 const User = require("../models/userModel");
 
 exports.isAuthenticatedUser = catchAsyncError(async (req, res, next) => {
-  // let  {token}  = req.headers;
   let { token } = req.cookies;
   let googleToken = req.cookies["connect.sid"];
 
@@ -19,14 +18,14 @@ exports.isAuthenticatedUser = catchAsyncError(async (req, res, next) => {
     req.user = await User.findById(decodedData.id);
   }
 
-  // if (req.user.isVerified === false) {
-  //   return next(
-  //     new ErrorHandler(
-  //       `You have to verify your email to access this resource`,
-  //       400
-  //     )
-  //   );
-  // }
+  if (req.user.isVerified === false) {
+    return next(
+      new ErrorHandler(
+        `Please verify your email`,
+        400
+      )
+    );
+  }
 
   next();
 });

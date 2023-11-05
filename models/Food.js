@@ -8,7 +8,7 @@ const foodSchema = mongoose.Schema({
   },
   description: {
     type: String,
-    required: [true, "yy enter Food Despriction"],
+    required: [true, "Please enter Food Despriction"],
   },
   DualOptions: {
     type: Boolean,
@@ -41,18 +41,18 @@ const foodSchema = mongoose.Schema({
     contentType: String,
   },
   rating: {
-    numofReviews : {
-        type: Number,
-        default: 0,
+    numofReviews: {
+      type: Number,
+      default: 0,
     },
-    TotalRating : {
-        type: Number,
-        default: 0,
+    TotalRating: {
+      type: Number,
+      default: 0,
     },
-    avgRating : {
-        type: Number,
-        default: 0,
-    }
+    avgRating: {
+      type: Number,
+      default: 0,
+    },
   },
   category: {
     type: String,

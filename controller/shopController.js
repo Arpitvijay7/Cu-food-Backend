@@ -238,6 +238,8 @@ exports.verifyShop = catchAsyncError(async (req, res, next) => {
     Balance: Unveriedshop.Balance,
     TodayAcceptedOrder: Unveriedshop.TodayAcceptedOrder,
     TodayRejectedOrder: Unveriedshop.TodayRejectedOrder,
+    tags:Unveriedshop.tags,
+    minDeliveryOrder: Unveriedshop.minDeliveryOrder,
     createdAt: Unveriedshop.createdAt,
   };
   await Unveriedshop.deleteOne();
