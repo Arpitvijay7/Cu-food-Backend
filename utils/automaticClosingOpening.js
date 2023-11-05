@@ -8,17 +8,16 @@ exports.automaticClosingOpening = catchAsyncError(async (req, res, next) => {
   const hours = date.getHours().toString().padStart(2, '0');
   const minutes = date.getMinutes().toString().padStart(2, '0');
   const time = hours + ":" + minutes;
-  
-  
+
   for (let i = 0; i < shop.length; i++) {
-    if (time >= shop[i].closeAt) {
-      if (shop[i].status == "open") {
+    if (time >= shop[i].closeAt || time < shop[i].openAt) {
+      if (shop[i].status === "open") {
         shop[i].status = "closed";
         await shop[i].save();
       }
     }
     if (time >= shop[i].openAt && time < shop[i].closeAt) {
-      if (shop[i].status == "closed") {
+      if (shop[i].status === "closed") {
         shop[i].status = "open";
 
         shop[i].TodaysEarnings = 0;
@@ -36,3 +35,4 @@ exports.automaticClosingOpening = catchAsyncError(async (req, res, next) => {
     }
   }
 });
+
