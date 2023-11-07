@@ -8,6 +8,23 @@ const ErrorHandler = require("../utils/ErrorHandler");
 exports.getAllItemsFromCart = catchAsyncError(async (req, res, next) => {
   const cart = await Cart.findOne({ userId: req.user._id });
 
+  if (cart.isEmpty) {
+    res.status(200).json({
+      message: `Your Cart Items`,
+      cart: cart.Food,
+      deliveryData: {
+        roomDelivery: false,
+        deliveryLocations: [],
+      },
+      deliveryPrice: 0,
+      freeDeliveryUpto: 0,
+      totalSum: 0,
+      shopStatus: 'open',
+    });
+
+    return;
+  }
+
   const shop = await Shop.findById(cart.shop);
 
   let shopStatus = undefined;
@@ -94,7 +111,6 @@ exports.addToCart = catchAsyncError(async (req, res, next) => {
         Cart: cart,
         deliveryPrice: cart.deliveryPrice,
         totalSum: cart.totalSum,
-        
       });
     }
   }
@@ -210,7 +226,7 @@ exports.replaceFromCart = catchAsyncError(async (req, res, next) => {
   }
   const food = await Food.findById(req.params.id);
   const shop = await Shop.findById(food.shop);
-  
+
   console.log(shop);
   const deliveryPrice = shop.deliveryPrice;
   const freeDeliveryUpto = shop.minDeliveryOrder;
@@ -292,7 +308,7 @@ exports.increaseQuantity = catchAsyncError(async (req, res, next) => {
       cart.totalSum += cart.Food[i].price;
       await cart.save();
       if (cart.totalSum >= cart.freeDeliveryUpto) {
-         cart.deliveryPrice = 0;
+        cart.deliveryPrice = 0;
       }
       await cart.save();
       check = 0;

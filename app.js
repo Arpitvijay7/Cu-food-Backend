@@ -19,21 +19,21 @@ app.use(
 );
 app.use(cookieParser());
 
-// app.use(
-//   '*',
-//   cors({
-//     origin: 'https://cufoods.netlify.app',
-//     credentials: true,
-//   })
-// );
-
 app.use(
   '*',
   cors({
-    origin: true,
+    origin: 'https://cufoodz.com',
     credentials: true,
   })
 );
+
+// app.use(
+//   '*',
+//   cors({
+//     origin: true,
+//     credentials: true,
+//   })
+// );
 
 app.use(
   session({

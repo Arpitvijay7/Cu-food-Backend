@@ -360,6 +360,21 @@ exports.resetPassword = catchAsyncError(async (req, res, next) => {
   sendToken(user, 200, res);
 });
 
+exports.createCart = catchAsyncError(async (req, res, next) => {
+  let cart;
+
+  cart = Cart.create({
+    userId: "6548e279d3b177bc5994c589",
+  });
+
+  // await cart.save();
+
+  res.status(200).json({
+    success: true,
+    cart,
+  });
+});
+
 // Vendor Withdrwal Request --vendor only
 exports.vendorWithdrawalRequest = catchAsyncError(async (req, res, next) => {
   const vendor = await User.findById(req.user._id);
