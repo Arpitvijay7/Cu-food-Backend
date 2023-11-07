@@ -15,11 +15,10 @@ exports.connectPassport = catchAsyncError(() => {
         callbackURL: process.env.GOOGLE_CALLBACK_URL,
       },
       async function (accessToken, refreshToken, profile, done) {
-  
         const user = await User.findOne({
           googleId: profile.id,
         });
-        
+
         let newUser;
         if (!user) {
           newUser = await User.create({
@@ -46,15 +45,22 @@ exports.connectPassport = catchAsyncError(() => {
 
   passport.deserializeUser(async (id, done) => {
     const user = await User.findById(id);
-    const cart = Cart.create({
-      userId: user._id,
-    });
 
-    if (!cart) {
-      return next(new ErrorHandler(`Cart not created`, 400));
+    // Check if the user already has a cart
+    const existingCart = await Cart.findOne({ userId: user._id });
+    if (!existingCart) {
+      // If the user doesn't have a cart, create one
+      const newCart = await Cart.create({
+        userId: user._id,
+      });
+
+      if (!newCart) {
+        return next(new ErrorHandler(`Cart not created`, 400));
+      }
     }
     done(null, user);
   });
+
 });
 
 exports.googleLogout = catchAsyncError((req, res, next) => {
