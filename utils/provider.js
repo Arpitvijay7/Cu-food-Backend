@@ -19,9 +19,10 @@ exports.connectPassport = catchAsyncError(() => {
         const user = await User.findOne({
           googleId: profile.id,
         });
-
+        
+        let newUser;
         if (!user) {
-          const newUser = await User.create({
+          newUser = await User.create({
             name: profile.displayName,
             email: `Google@${profile.id}.com`,
             password: "undefined",
