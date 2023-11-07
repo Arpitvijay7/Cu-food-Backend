@@ -5,6 +5,14 @@ const CartSchema = new mongoose.Schema({
       type:Number,
       default: 0,
    },
+   deliveryPrice : {
+      type:Number,
+      default: 20,
+   },
+   freeDeliveryUpto: {
+      type:Number,
+      default: 200,
+   },
    Food : [{
       name: {
          type:String

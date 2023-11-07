@@ -169,7 +169,7 @@ exports.orderViaCash = catchAsyncError(async (req, res) => {
     deliveryAddress,
     Otp,
     OrderItems: fooditmes,
-    totalPrice: cart.totalSum,
+    totalPrice: cart.totalSum + cart.deliveryPrice,
     deliveryType: ShopItems.roomDelivery ? "Room" : "Normal",
     paidAt: Date.now(),
     shop: cart.shop,

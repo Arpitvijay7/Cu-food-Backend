@@ -15,7 +15,8 @@ const {
   makeUserAdmin,
   vendorWithdrawalRequest,
   resetPassword,
-  verifyEmail
+  verifyEmail,
+  remove
 } = require("../controller/userController");
 
 const router = express.Router();
@@ -27,6 +28,7 @@ router.route("/login").post(loginUser);
 router.route("/logedInUser").get(isAuthenticatedUser, getLoggedInUser);
 
 router.route('/remove/:id').delete(isAuthenticatedUser , authorizedRoles('admin') , removeUser)
+
 
 router.get(
   "/googleAuth",

@@ -450,3 +450,4 @@ exports.vendorWithdrawalRequest = catchAsyncError(async (req, res, next) => {
   //   res.status(500).json({ error: "Withdrawal request failed" });
   // }
 });
+

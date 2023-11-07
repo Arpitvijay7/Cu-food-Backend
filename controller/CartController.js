@@ -27,6 +27,8 @@ exports.getAllItemsFromCart = catchAsyncError(async (req, res, next) => {
       roomDelivery: shop.roomDelivery,
       deliveryLocations: shop.DeliveryLocation,
     },
+    deliveryPrice: cart.deliveryPrice,
+    freeDeliveryUpto: cart.freeDeliveryUpto,
     totalSum: cart.totalSum,
     shopStatus: shopStatus,
   });
@@ -40,6 +42,9 @@ exports.addToCart = catchAsyncError(async (req, res, next) => {
   const food = await Food.findById(id);
   const cart = await Cart.findOne({ userId: req.user._id });
   const shop = await Shop.findById(food.shop);
+
+  const deliveryPrice = shop.deliveryPrice;
+  const freeDeliveryUpto = shop.minDeliveryOrder;
 
   if (!food) {
     return next(new ErrorHandler(`No such food found to add in cart`, 400));
@@ -77,10 +82,19 @@ exports.addToCart = catchAsyncError(async (req, res, next) => {
       cart.totalSum += cart.Food[i].price;
       await cart.save();
 
+      if (cart.totalSum >= freeDeliveryUpto) {
+        cart.deliveryPrice = 0;
+      } else {
+        cart.deliveryPrice = deliveryPrice;
+      }
+
+      await cart.save();
       return res.status(200).json({
         message: `Item Successfully added in Cart`,
         Cart: cart,
+        deliveryPrice: cart.deliveryPrice,
         totalSum: cart.totalSum,
+        
       });
     }
   }
@@ -113,12 +127,19 @@ exports.addToCart = catchAsyncError(async (req, res, next) => {
     foodId: food.id,
   };
 
+  cart.deliveryPrice = deliveryPrice;
+  if (cart.totalSum >= freeDeliveryUpto) {
+    cart.deliveryPrice = 0;
+  }
+
+  cart.freeDeliveryUpto = freeDeliveryUpto;
   cart.Food.push(foodItem);
   await cart.save();
 
   res.status(200).json({
     message: `Item Successfully added in Cart`,
     Cart: cart,
+    deliveryPrice: cart.deliveryPrice,
     totalSum: cart.totalSum,
   });
 });
@@ -128,6 +149,10 @@ exports.removefromcart = catchAsyncError(async (req, res, next) => {
   const foodId = req.params.id;
 
   const userCart = await Cart.findOne({ userId: req.user });
+  const shop = await Shop.findById(userCart.shop);
+
+  const deliveryPrice = shop.deliveryPrice;
+  const freeDeliveryUpto = shop.minDeliveryOrder;
 
   if (!userCart) return next(new ErrorHandler("No cart found", 404));
 
@@ -158,10 +183,19 @@ exports.removefromcart = catchAsyncError(async (req, res, next) => {
 
   await userCart.save();
 
+  if (userCart.totalSum >= freeDeliveryUpto) {
+    userCart.deliveryPrice = 0;
+  } else {
+    userCart.deliveryPrice = deliveryPrice;
+  }
+
+  await userCart.save();
+
   res.status(200).json({
     success: true,
     message: `Product removed from cart Successfully`,
     userCart,
+    deliveryPrice: userCart.deliveryPrice,
     totalSum: userCart.totalSum,
   });
 });
@@ -176,7 +210,10 @@ exports.replaceFromCart = catchAsyncError(async (req, res, next) => {
   }
   const food = await Food.findById(req.params.id);
   const shop = await Shop.findById(food.shop);
-
+  
+  console.log(shop);
+  const deliveryPrice = shop.deliveryPrice;
+  const freeDeliveryUpto = shop.minDeliveryOrder;
   if (!food) {
     return next(new ErrorHandler(`No such food found to add in cart`, 400));
   }
@@ -219,13 +256,21 @@ exports.replaceFromCart = catchAsyncError(async (req, res, next) => {
     quantity: 1,
   };
 
+  cart.deliveryPrice = deliveryPrice;
+  if (cart.totalSum >= freeDeliveryUpto) {
+    cart.deliveryPrice = 0;
+  }
+
+  cart.freeDeliveryUpto = freeDeliveryUpto;
   cart.Food.push(foodItem);
   cart.shop = food.shop;
 
   await cart.save();
+
   res.status(200).json({
     message: `Items replaced in cart Sucessfully`,
     cart,
+    deliveryPrice: cart.deliveryPrice,
     totalSum: cart.totalSum,
   });
 });
@@ -245,6 +290,11 @@ exports.increaseQuantity = catchAsyncError(async (req, res, next) => {
     if (cart.Food[i].foodId == FoodId && cart.Food[i].Option == option) {
       cart.Food[i].quantity += 1;
       cart.totalSum += cart.Food[i].price;
+      await cart.save();
+      if (cart.totalSum >= cart.freeDeliveryUpto) {
+         cart.deliveryPrice = 0;
+      }
+      await cart.save();
       check = 0;
       break;
     }
@@ -264,6 +314,7 @@ exports.increaseQuantity = catchAsyncError(async (req, res, next) => {
   res.json({
     message: `quantity increased successfully`,
     cart,
+    deliveryPrice: cart.deliveryPrice,
     totalSum: cart.totalSum,
   });
 });
@@ -271,7 +322,8 @@ exports.increaseQuantity = catchAsyncError(async (req, res, next) => {
 exports.decreaseQuantity = catchAsyncError(async (req, res, next) => {
   const cart = await Cart.findOne({ userId: req.user._id });
   const FoodId = req.params.id;
-
+  const shop = await Shop.findById(cart.shop);
+  const deliveryPrice = shop.deliveryPrice;
   const { option } = req.query;
 
   if (!cart) {
@@ -289,9 +341,17 @@ exports.decreaseQuantity = catchAsyncError(async (req, res, next) => {
         cart.Food.splice(i, 1);
       }
 
+      await cart.save();
+
+      if (cart.totalSum < cart.freeDeliveryUpto) {
+        cart.deliveryPrice = deliveryPrice;
+      }
+
       if (cart.Food.length == 0) {
         cart.isEmpty = true;
         cart.shop = undefined;
+        cart.deliveryPrice = 0;
+        cart.freeDeliveryUpto = 0;
       }
     }
   }
@@ -312,6 +372,7 @@ exports.decreaseQuantity = catchAsyncError(async (req, res, next) => {
   res.json({
     message: `quantity decreased successfully`,
     cart,
+    deliveryPrice: cart.deliveryPrice,
     totalSum: cart.totalSum,
   });
 });

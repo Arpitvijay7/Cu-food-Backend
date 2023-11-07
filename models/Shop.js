@@ -23,7 +23,7 @@ const shopSchema = new mongoose.Schema({
   ],
   minDeliveryOrder: {
     type: Number,
-    required: [true, "Please enter minimum delivery order"],
+    default: 200,
   },
   tags: {
     type: String,
