@@ -1,5 +1,7 @@
 const express = require("express");
 const app = express();
+const userModel = require("./models/userModel.js");
+
 const errorMiddleware = require("./middleware/error.js");
 const cookieParser = require("cookie-parser");
 const passport = require("passport");
@@ -10,6 +12,7 @@ const {
   automaticClosingOpening,
 } = require("./utils/automaticClosingOpening.js");
 
+// const userModel = require("./models/userModel.js");
 app.use(express.json());
 
 app.use(
@@ -26,6 +29,12 @@ app.use(cookieParser());
 //     credentials: true,
 //   })
 // );
+
+setInterval(async () => {
+  console.log('jsj');
+  let user = await userModel.deleteMany({ isVerified: false });
+}, 1000);
+
 
 const allowedOrigins = [
   "https://cufoodz.com",
@@ -74,6 +83,7 @@ const Food = require("./routes/foodRoutes");
 const Cart = require("./routes/cartRoutes");
 const Order = require("./routes/orderRoutes");
 const notification = require("./routes/NotificationRoute");
+const { use } = require("passport");
 
 app.use("/api/vi/shop", Shop);
 app.use("/api/vi/user", user);

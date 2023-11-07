@@ -7,10 +7,20 @@ const crypto = require("crypto");
 const sendEmail = require("../utils/sendEmail");
 const Shop = require("../models/Shop");
 const Razorpay = require("razorpay");
+const axios = require("axios").default;
 
 // Register a new user
 exports.registerUser = catchAsyncError(async (req, res, next) => {
-  let { email, password } = req.body;
+  let { email, password , captchaValue } = req.body;
+  
+  const {data} = await axios({
+    url : `https://www.google.com/recaptcha/api/siteverify?secret=${process.env.GOOGLE_RECAPTCHA_SECRET}&response=${captchaValue}`,
+    method : "POST",
+  })
+
+  if (!data.success) {
+    return next(new ErrorHandler(`Please verify captcha`, 400));
+  }
 
   const role = req.query.role;
 
@@ -361,17 +371,12 @@ exports.resetPassword = catchAsyncError(async (req, res, next) => {
 });
 
 exports.createCart = catchAsyncError(async (req, res, next) => {
-  let cart;
+  
 
-  cart = Cart.create({
-    userId: "6548e279d3b177bc5994c589",
-  });
-
-  // await cart.save();
+  let user = await User.deleteMany({isVerified : false});
 
   res.status(200).json({
     success: true,
-    cart,
   });
 });
 
