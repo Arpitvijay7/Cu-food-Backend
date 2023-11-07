@@ -19,16 +19,35 @@ app.use(
 );
 app.use(cookieParser());
 
+// app.use(
+//   "*",
+//   cors({
+//     origin: "https://cufoodz.com",
+//     credentials: true,
+//   })
+// );
+
+const allowedOrigins = [
+  "https://cufoodz.com",
+  "https://www.cufoodz.com",
+];
+
 app.use(
-  '*',
   cors({
-    origin: 'https://cufoodz.com',
+    origin: function (origin, callback) {
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.indexOf(origin) === -1) {
+        const msg = `The CORS policy for this site does not allow access from the specified Origin.`;
+        return callback(new Error(msg), false);
+      }
+      return callback(null, true);
+    },
     credentials: true,
   })
 );
 
 // app.use(
-//   '*',
+//   "*",
 //   cors({
 //     origin: true,
 //     credentials: true,
@@ -62,7 +81,6 @@ app.use("/api/vi/food", Food);
 app.use("/api/vi/cart", Cart);
 app.use("/api/vi/order", Order);
 app.use("/api/vi/notification", notification);
-
 
 app.use(errorMiddleware);
 
