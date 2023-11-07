@@ -18,7 +18,7 @@ exports.isAuthenticatedUser = catchAsyncError(async (req, res, next) => {
     req.user = await User.findById(decodedData.id);
   }
 
-  if (!googleToken || req.user.isVerified === false) {
+  if (!googleToken && req.user.isVerified === false) {
     return next(
       new ErrorHandler(
         `Please verify your email`,
