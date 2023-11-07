@@ -20,20 +20,13 @@ app.use(
     extended: true,
   })
 );
+
 app.use(cookieParser());
 
-// app.use(
-//   "*",
-//   cors({
-//     origin: "https://cufoodz.com",
-//     credentials: true,
-//   })
-// );
-
-setInterval(async () => {
-  console.log('jsj');
-  let user = await userModel.deleteMany({ isVerified: false });
-}, 1000);
+// setInterval(async () => {
+//   console.log('jsj');
+//   let user = await userModel.deleteMany({ isVerified: false });
+// }, 1000);
 
 
 const allowedOrigins = [
