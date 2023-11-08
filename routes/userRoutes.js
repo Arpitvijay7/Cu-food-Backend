@@ -30,7 +30,6 @@ router.route("/logedInUser").get(isAuthenticatedUser, getLoggedInUser);
 
 router.route('/remove/:id').delete(isAuthenticatedUser , authorizedRoles('admin') , removeUser)
 
-router.route('/create').get(createCart);
 
 router.get(
   "/googleAuth",

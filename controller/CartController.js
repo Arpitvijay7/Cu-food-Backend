@@ -205,6 +205,10 @@ exports.removefromcart = catchAsyncError(async (req, res, next) => {
     userCart.deliveryPrice = deliveryPrice;
   }
 
+  if (userCart.isEmpty) {
+    userCart.deliveryPrice = 0;
+  }
+
   await userCart.save();
 
   res.status(200).json({

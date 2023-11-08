@@ -370,16 +370,6 @@ exports.resetPassword = catchAsyncError(async (req, res, next) => {
   sendToken(user, 200, res);
 });
 
-exports.createCart = catchAsyncError(async (req, res, next) => {
-  
-
-  let user = await User.deleteMany({isVerified : false});
-
-  res.status(200).json({
-    success: true,
-  });
-});
-
 // Vendor Withdrwal Request --vendor only
 exports.vendorWithdrawalRequest = catchAsyncError(async (req, res, next) => {
   const vendor = await User.findById(req.user._id);

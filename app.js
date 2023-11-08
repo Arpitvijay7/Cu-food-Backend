@@ -32,6 +32,8 @@ app.use(cookieParser());
 const allowedOrigins = [
   "https://cufoodz.com",
   "https://www.cufoodz.com",
+   "https://vendor.cufoodz.com",
+   "https://www.vendor.cufoodz.com"
 ];
 
 app.use(
