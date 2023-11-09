@@ -146,8 +146,17 @@ exports.verifyEmail = catchAsyncError(async (req, res, next) => {
 
 // Logout User
 exports.loginUser = catchAsyncError(async (req, res, next) => {
-  let { email, password } = req.body;
-  console.log(email, password);
+  let { email, password ,captchaValue} = req.body;
+
+  const {data} = await axios({
+    url : `https://www.google.com/recaptcha/api/siteverify?secret=${process.env.GOOGLE_RECAPTCHA_SECRET}&response=${captchaValue}`,
+    method : "POST",
+  })
+
+  if (!data.success) {
+    return next(new ErrorHandler(`Please verify captcha`, 400));
+  }
+
   if (!email || !password) {
     return next(
       new ErrorHandler(`Please enter email and password to login`, 400)
@@ -270,6 +279,20 @@ exports.getLoggedInUser = catchAsyncError(async (req, res, next) => {
 // Forgot password
 exports.forgotPassword = catchAsyncError(async (req, res, next) => {
   const user = await User.findOne({ email: req.body.email });
+  
+  const {captchaValue} = req.body;
+  const {data} = await axios({
+    url : `https://www.google.com/recaptcha/api/siteverify?secret=${process.env.GOOGLE_RECAPTCHA_SECRET}&response=${captchaValue}`,
+    method : "POST",
+  })
+
+  if (!data.success) {
+    return next(new ErrorHandler(`Please verify captcha`, 400));
+  }
+  
+  if (!user) {
+    return next(new ErrorHandler("No User with this email found", 404));
+  }
 
   if (user.googleId) {
     return next(
@@ -278,10 +301,6 @@ exports.forgotPassword = catchAsyncError(async (req, res, next) => {
         400
       )
     );
-  }
-
-  if (!user) {
-    return next(new ErrorHandler("No User with this email found", 404));
   }
 
   // Get ResetPassword Token

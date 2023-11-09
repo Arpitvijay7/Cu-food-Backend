@@ -1,7 +1,6 @@
 const express = require("express");
 const passport = require("passport");
 
-
 const { isAuthenticatedUser, authorizedRoles } = require("../middleware/auth");
 const { googleLogout } = require("../utils/provider");
 
@@ -18,20 +17,21 @@ const {
   resetPassword,
   verifyEmail,
   remove,
-  createCart
+  createCart,
 } = require("../controller/userController");
 const limiter = require("../middleware/ratelimiter");
 
 const router = express.Router();
 
-router.route("/new").post(limiter,registerUser);
+router.route("/new").post(limiter, registerUser);
 
-router.route("/login").post(loginUser);
+router.route("/login").post(limiter, loginUser);
 
 router.route("/logedInUser").get(isAuthenticatedUser, getLoggedInUser);
 
-router.route('/remove/:id').delete(isAuthenticatedUser , authorizedRoles('admin') , removeUser)
-
+router
+  .route("/remove/:id")
+  .delete(isAuthenticatedUser, authorizedRoles("admin"), removeUser);
 
 router.get(
   "/googleAuth",
@@ -48,20 +48,30 @@ router.get(
   })
 );
 
-router.route('/getAllUsers').get(isAuthenticatedUser , authorizedRoles('admin') , getAllUsers)
+router
+  .route("/getAllUsers")
+  .get(isAuthenticatedUser, authorizedRoles("admin"), getAllUsers);
 
-router.route('/makeUserAdmin/:id').put(isAuthenticatedUser , authorizedRoles('admin') , makeUserAdmin)
+router
+  .route("/makeUserAdmin/:id")
+  .put(isAuthenticatedUser, authorizedRoles("admin"), makeUserAdmin);
 
-router.get('/googleLogout',isAuthenticatedUser,googleLogout);
+router.get("/googleLogout", isAuthenticatedUser, googleLogout);
 
 router.route("/logout").get(isAuthenticatedUser, logoutUser);
 
-router.route("/password/forgot").post(forgotPassword);
+router.route("/password/forgot").post(limiter, forgotPassword);
 
 router.route("/password/reset/:token").put(resetPassword);
 
 router.route("/verify/:token").put(verifyEmail);
 
-router.route('/vendorWithdrwal').get(isAuthenticatedUser , authorizedRoles('vendor','admin'),vendorWithdrawalRequest);
+router
+  .route("/vendorWithdrwal")
+  .get(
+    isAuthenticatedUser,
+    authorizedRoles("vendor", "admin"),
+    vendorWithdrawalRequest
+  );
 
 module.exports = router;
