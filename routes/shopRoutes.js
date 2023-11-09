@@ -12,7 +12,6 @@ const {
 } = require("../controller/shopController");
 const { isAuthenticatedUser, authorizedRoles } = require("../middleware/auth");
 const singleUpload = require("../middleware/multer");
-
 const router = express.Router();
 
 router.route("/getAllShops").get(getAllshops);

@@ -8,13 +8,14 @@ const passport = require("passport");
 const { connectPassport } = require("./utils/provider.js");
 const session = require("express-session");
 const cors = require("cors");
+const helmet = require("helmet");
 const {
   automaticClosingOpening,
 } = require("./utils/automaticClosingOpening.js");
 
 // const userModel = require("./models/userModel.js");
 app.use(express.json());
-
+app.use(helmet());
 app.use(
   express.urlencoded({
     extended: true,
@@ -78,7 +79,7 @@ const Food = require("./routes/foodRoutes");
 const Cart = require("./routes/cartRoutes");
 const Order = require("./routes/orderRoutes");
 const notification = require("./routes/NotificationRoute");
-const { use } = require("passport");
+
 
 app.use("/api/vi/shop", Shop);
 app.use("/api/vi/user", user);

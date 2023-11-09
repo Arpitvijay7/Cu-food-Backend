@@ -1,6 +1,7 @@
 const express = require("express");
 const passport = require("passport");
 
+
 const { isAuthenticatedUser, authorizedRoles } = require("../middleware/auth");
 const { googleLogout } = require("../utils/provider");
 
@@ -19,10 +20,11 @@ const {
   remove,
   createCart
 } = require("../controller/userController");
+const limiter = require("../middleware/ratelimiter");
 
 const router = express.Router();
 
-router.route("/new").post(registerUser);
+router.route("/new").post(limiter,registerUser);
 
 router.route("/login").post(loginUser);
 
