@@ -21,7 +21,7 @@ const {Loginlimiter, registerlimiter,SignUplimiter,forgotPasswordlimiter} = requ
 
 const router = express.Router();
 
-router.route("/new").post(registerlimiter, registerUser);
+router.route("/new").post(registerUser);
 
 router.route("/login").post(Loginlimiter, loginUser);
 

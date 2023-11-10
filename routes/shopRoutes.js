@@ -17,7 +17,7 @@ const router = express.Router();
 
 router.route("/getAllShops").get(getAllshops);
 
-router.route("/getMenu/:id").get(registerlimiter,getMenu);
+router.route("/getMenu/:id").get(getMenu);
 
 router
   .route("/createShop")
