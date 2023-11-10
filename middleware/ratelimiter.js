@@ -9,6 +9,15 @@ const SignUplimiter = rateLimit({
   },
 });
 
+const registerlimiter = rateLimit({
+  windowMs: 30 * 60 * 1000, 
+  max: 10, 
+  message: "Too many requests from this IP, please try again after 30 minutes",
+  keyGenerator: function (req) {
+    return req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+  },
+});
+
 const forgotPasswordlimiter = rateLimit({
   windowMs: 30 * 60 * 1000, 
   max: 10, 
@@ -36,5 +45,5 @@ const Loginlimiter = rateLimit({
   },
 });
 
-module.exports = {SignUplimiter,Orderlimiter,Loginlimiter,forgotPasswordlimiter};
+module.exports = {SignUplimiter,registerlimiter,Orderlimiter,Loginlimiter,forgotPasswordlimiter};
 

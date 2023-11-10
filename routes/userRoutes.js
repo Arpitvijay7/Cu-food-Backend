@@ -17,11 +17,11 @@ const {
   resetPassword,
   verifyEmail,
 } = require("../controller/userController");
-const {Loginlimiter, SignUplimiter,forgotPasswordlimiter} = require("../middleware/ratelimiter");
+const {Loginlimiter, registerlimiter,SignUplimiter,forgotPasswordlimiter} = require("../middleware/ratelimiter");
 
 const router = express.Router();
 
-router.route("/new").post(SignUplimiter, registerUser);
+router.route("/new").post(registerlimiter, registerUser);
 
 router.route("/login").post(Loginlimiter, loginUser);
 
