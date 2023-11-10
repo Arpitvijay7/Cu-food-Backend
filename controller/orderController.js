@@ -140,6 +140,18 @@ exports.orderViaCash = catchAsyncError(async (req, res) => {
   if (!req.user) {
     return next(new ErrorHandler("Login first to place the order", 401));
   }
+  
+  const orders = await Order.find({
+    user: req.user._id,
+    orderStatus: { $in: ["Placed", "Preparing"] },
+  });
+
+  if (orders.length >= 2) {
+    return next(
+      new ErrorHandler("Only 2 orders at a time", 401)
+    );
+  }
+
   let deliveryAddress = undefined;
   let Otp = undefined;
   if (deliveryCheckbox) {
