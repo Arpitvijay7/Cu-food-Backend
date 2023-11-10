@@ -15,7 +15,7 @@ const {
   orderViaCash,
 } = require("../controller/orderController");
 const { isAuthenticatedUser, authorizedRoles } = require("../middleware/auth");
-const limiter = require("../middleware/ratelimiter");
+const {Orderlimiter} = require("../middleware/ratelimiter");
 
 
 const router = express.Router();
@@ -24,7 +24,7 @@ router.route("/checkout").post(isAuthenticatedUser, checkout);
 
 router.route("/verifyOrder").post(isAuthenticatedUser, verifyOrder);
 
-router.route("/OrderviaCash").post(limiter,isAuthenticatedUser, orderViaCash);
+router.route("/OrderviaCash").post(Orderlimiter,isAuthenticatedUser, orderViaCash);
 
 router.route("/myOrders").get(isAuthenticatedUser, myOrders);
 

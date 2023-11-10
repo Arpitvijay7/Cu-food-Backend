@@ -13,6 +13,7 @@ const {
   automaticClosingOpening,
 } = require("./utils/automaticClosingOpening.js");
 
+app.set('trust proxy', true);
 // const userModel = require("./models/userModel.js");
 app.use(express.json());
 app.use(helmet());

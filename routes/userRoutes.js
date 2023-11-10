@@ -19,13 +19,13 @@ const {
   remove,
   createCart,
 } = require("../controller/userController");
-const limiter = require("../middleware/ratelimiter");
+const {Loginlimiter, SignUplimiter,forgotPasswordlimiter} = require("../middleware/ratelimiter");
 
 const router = express.Router();
 
-router.route("/new").post(limiter, registerUser);
+router.route("/new").post(SignUplimiter, registerUser);
 
-router.route("/login").post(limiter, loginUser);
+router.route("/login").post(Loginlimiter, loginUser);
 
 router.route("/logedInUser").get(isAuthenticatedUser, getLoggedInUser);
 
@@ -60,7 +60,7 @@ router.get("/googleLogout", isAuthenticatedUser, googleLogout);
 
 router.route("/logout").get(isAuthenticatedUser, logoutUser);
 
-router.route("/password/forgot").post(limiter, forgotPassword);
+router.route("/password/forgot").post(forgotPasswordlimiter, forgotPassword);
 
 router.route("/password/reset/:token").put(resetPassword);
 
