@@ -12,11 +12,12 @@ const {
 } = require("../controller/shopController");
 const { isAuthenticatedUser, authorizedRoles } = require("../middleware/auth");
 const singleUpload = require("../middleware/multer");
+const { SignUplimiter } = require("../middleware/ratelimiter");
 const router = express.Router();
 
 router.route("/getAllShops").get(getAllshops);
 
-router.route("/getMenu/:id").get(getMenu);
+router.route("/getMenu/:id").get(SignUplimiter,getMenu);
 
 router
   .route("/createShop")

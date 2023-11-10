@@ -30,12 +30,11 @@ app.use(cookieParser());
 //   let user = await userModel.deleteMany({ isVerified: false });
 // }, 1000);
 
-
 const allowedOrigins = [
   "https://cufoodz.com",
   "https://www.cufoodz.com",
    "https://vendor.cufoodz.com",
-   "https://www.vendor.cufoodz.com"
+   "https://www.vendor.cufoodz.com",
 ];
 
 app.use(

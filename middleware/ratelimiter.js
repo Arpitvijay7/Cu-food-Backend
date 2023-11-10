@@ -3,7 +3,7 @@ const rateLimit = require("express-rate-limit");
 const SignUplimiter = rateLimit({
   windowMs: 30 * 60 * 1000, 
   max: 10, 
-  message: "Too many requests from this IP, please try again after 15 minutes",
+  message: "Too many requests from this IP, please try again after 30 minutes",
   keyGenerator: function (req) {
     return req.headers['x-forwarded-for'] || req.connection.remoteAddress;
   },
@@ -12,7 +12,7 @@ const SignUplimiter = rateLimit({
 const forgotPasswordlimiter = rateLimit({
   windowMs: 30 * 60 * 1000, 
   max: 10, 
-  message: "Too many requests from this IP, please try again after 15 minutes",
+  message: "Too many requests from this IP, please try again after 30 minutes",
   keyGenerator: function (req) {
     return req.headers['x-forwarded-for'] || req.connection.remoteAddress;
   },
@@ -21,7 +21,7 @@ const forgotPasswordlimiter = rateLimit({
 const Orderlimiter = rateLimit({
   windowMs: 30 * 60 * 1000,
   max: 10, 
-  message: "Too many requests from this IP, please try again after 15 minutes",
+  message: "Too many requests from this IP, please try again after 30 minutes",
   keyGenerator: function (req) {
     return req.headers['x-forwarded-for'] || req.connection.remoteAddress;
   },
@@ -30,7 +30,7 @@ const Orderlimiter = rateLimit({
 const Loginlimiter = rateLimit({
   windowMs: 30 * 60 * 1000,
   max: 10, 
-  message: "Too many requests from this IP, please try again after 15 minutes",
+  message: "Too many requests from this IP, please try again after 30 minutes",
   keyGenerator: function (req) {
     return req.headers['x-forwarded-for'] || req.connection.remoteAddress;
   },

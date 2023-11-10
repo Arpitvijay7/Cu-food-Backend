@@ -16,8 +16,6 @@ const {
   vendorWithdrawalRequest,
   resetPassword,
   verifyEmail,
-  remove,
-  createCart,
 } = require("../controller/userController");
 const {Loginlimiter, SignUplimiter,forgotPasswordlimiter} = require("../middleware/ratelimiter");
 
@@ -36,14 +34,14 @@ router
 router.get(
   "/googleAuth",
   passport.authenticate("google", {
-    scope: ["profile"],
+    scope: ["profile","email"],
   })
 );
 
 router.get(
   "/googlelogin",
   passport.authenticate("google", {
-    scope: ["profile"],
+    scope: ["profile","email"],
     successRedirect: process.env.FRONTEND_URL,
   })
 );
@@ -65,6 +63,7 @@ router.route("/password/forgot").post(forgotPasswordlimiter, forgotPassword);
 router.route("/password/reset/:token").put(resetPassword);
 
 router.route("/verify/:token").put(verifyEmail);
+
 
 router
   .route("/vendorWithdrwal")

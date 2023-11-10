@@ -11,12 +11,12 @@ const axios = require("axios").default;
 
 // Register a new user
 exports.registerUser = catchAsyncError(async (req, res, next) => {
-  let { email, password , captchaValue } = req.body;
-  
-  const {data} = await axios({
-    url : `https://www.google.com/recaptcha/api/siteverify?secret=${process.env.GOOGLE_RECAPTCHA_SECRET}&response=${captchaValue}`,
-    method : "POST",
-  })
+  let { email, password, captchaValue } = req.body;
+
+  const { data } = await axios({
+    url: `https://www.google.com/recaptcha/api/siteverify?secret=${process.env.GOOGLE_RECAPTCHA_SECRET}&response=${captchaValue}`,
+    method: "POST",
+  });
 
   if (!data.success) {
     return next(new ErrorHandler(`Please verify captcha`, 400));
@@ -146,12 +146,12 @@ exports.verifyEmail = catchAsyncError(async (req, res, next) => {
 
 // Logout User
 exports.loginUser = catchAsyncError(async (req, res, next) => {
-  let { email, password ,captchaValue} = req.body;
+  let { email, password, captchaValue } = req.body;
 
-  const {data} = await axios({
-    url : `https://www.google.com/recaptcha/api/siteverify?secret=${process.env.GOOGLE_RECAPTCHA_SECRET}&response=${captchaValue}`,
-    method : "POST",
-  })
+  const { data } = await axios({
+    url: `https://www.google.com/recaptcha/api/siteverify?secret=${process.env.GOOGLE_RECAPTCHA_SECRET}&response=${captchaValue}`,
+    method: "POST",
+  });
 
   if (!data.success) {
     return next(new ErrorHandler(`Please verify captcha`, 400));
@@ -279,17 +279,17 @@ exports.getLoggedInUser = catchAsyncError(async (req, res, next) => {
 // Forgot password
 exports.forgotPassword = catchAsyncError(async (req, res, next) => {
   const user = await User.findOne({ email: req.body.email });
-  
-  const {captchaValue} = req.body;
-  const {data} = await axios({
-    url : `https://www.google.com/recaptcha/api/siteverify?secret=${process.env.GOOGLE_RECAPTCHA_SECRET}&response=${captchaValue}`,
-    method : "POST",
-  })
+
+  const { captchaValue } = req.body;
+  const { data } = await axios({
+    url: `https://www.google.com/recaptcha/api/siteverify?secret=${process.env.GOOGLE_RECAPTCHA_SECRET}&response=${captchaValue}`,
+    method: "POST",
+  });
 
   if (!data.success) {
     return next(new ErrorHandler(`Please verify captcha`, 400));
   }
-  
+
   if (!user) {
     return next(new ErrorHandler("No User with this email found", 404));
   }
@@ -307,12 +307,12 @@ exports.forgotPassword = catchAsyncError(async (req, res, next) => {
   const resetToken = await user.getResetPasswordToken();
 
   await user.save({ validateBeforeSave: false });
-  
+
   let resetPasswordUrl;
   if (process.env.NODE_ENV === "production") {
-     resetPasswordUrl = `https://cufoodz.com/resetpassword?token=${resetToken}`;
+    resetPasswordUrl = `https://cufoodz.com/resetpassword?token=${resetToken}`;
   } else {
-     resetPasswordUrl = `${req.protocol}://localhost:3000/resetpassword?token=${resetToken}`;
+    resetPasswordUrl = `${req.protocol}://localhost:3000/resetpassword?token=${resetToken}`;
   }
 
   try {

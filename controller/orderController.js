@@ -129,7 +129,7 @@ exports.verifyOrder = catchAsyncError(async (req, res) => {
   }
 });
 
-exports.orderViaCash = catchAsyncError(async (req, res) => {
+exports.orderViaCash = catchAsyncError(async (req, res,next) => {
   const { deliveryCheckbox, address, paymentInfo, phoneNumber } = req.body;
 
   const cart = await Cart.findOne({ userId: req.user._id });
