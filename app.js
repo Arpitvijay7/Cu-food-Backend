@@ -15,21 +15,6 @@ const {
 
 app.set('trust proxy', true);
 // const userModel = require("./models/userModel.js");
-app.use(express.json());
-app.use(helmet());
-app.use(
-  express.urlencoded({
-    extended: true,
-  })
-);
-
-app.use(cookieParser());
-
-// setInterval(async () => {
-//   console.log('jsj');
-//   let user = await userModel.deleteMany({ isVerified: false });
-// }, 1000);
-
 const allowedOrigins = [
   "https://cufoodz.com",
   "https://www.cufoodz.com",
@@ -50,6 +35,22 @@ app.use(
     credentials: true,
   })
 );
+
+app.use(express.json());
+app.use(helmet());
+app.use(
+  express.urlencoded({
+    extended: true,
+  })
+);
+
+app.use(cookieParser());
+
+// setInterval(async () => {
+//   console.log('jsj');
+//   let user = await userModel.deleteMany({ isVerified: false });
+// }, 1000);
+
 
 // app.use(
 //   "*",
