@@ -19,14 +19,14 @@ admin.initializeApp({
 
 exports.phoneAuth = catchAsyncError(async (req, res, next) => {
   const user = req.user;
-
   const verified = req.user.isPhoneVerified;
   if (verified) {
     return next(new ErrorHandler(`Phone number is already verified`, 400));
   }
 
   try {
-    const phoneNumber = req.body.phoneNumber;
+    const phoneNumber = parseInt(req.body.phoneNumber);
+    console.log("recieved", phoneNumber);
     const Otp = await user.getOtp();
     user.phoneNo = phoneNumber;
     await user.save({ validateBeforeSave: false });
@@ -58,7 +58,7 @@ exports.phoneAuth = catchAsyncError(async (req, res, next) => {
 });
 
 exports.OtpVerify = catchAsyncError(async (req, res, next) => {
-  const otp = req.body.otp;
+  const otp = parseInt(req.body.otp);
 
   if (req.user.isPhoneVerified) {
     return next(new ErrorHandler(`Phone number is already verified`, 400));
