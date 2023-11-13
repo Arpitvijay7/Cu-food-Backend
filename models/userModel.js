@@ -11,6 +11,16 @@ const userSchema = new mongoose.Schema({
     maxLength: [30, "Name cannot exceed 30 characters"],
     minLength: [4, "Name should have more than 4 characters"],
   },
+  phoneNo : {
+    type: Number,
+    max: [9999999999, "Phone Number cannot exceed 10 digits"],
+    min: [1000000000, "Phone Number should have 10 digits"],    
+    default: 1000000000
+  },
+  isPhoneVerified: {
+    type: Boolean,
+    default: false,
+  },
   email: {
     type: String,
     required: [true, "Please Enter Your Email."],
@@ -29,11 +39,6 @@ const userSchema = new mongoose.Schema({
   role: {
     type: String,
     default: "user",
-  },
-  phoneNo: {
-    type: String,
-    maxLength: [10, "Phone Number cannot exceed 10 characters"],
-    minLength: [10, "Phone Number should have 10 characters"],
   },
   createdAt: {
     type: Date,
@@ -58,6 +63,9 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  Otp: String,
+  OtpExpire: Date,
+
   EmailVerificationToken: String,
   EmailVerificationExpire: Date,
 
@@ -108,6 +116,25 @@ userSchema.methods.getResetPasswordToken = async function () {
   this.resetPasswordExpire = Date.now() + 15 * 60 * 1000;
 
   return resetToken;
+};
+
+// Generating Otp 
+userSchema.methods.getOtp = async function () {
+  // Generating Password Reset Token
+  const otp = Math.floor(100000 + Math.random() * 900000);
+
+  // Hashing and adding resetPasswordToken to userSchema
+  let salt = await bcrypt.genSalt();
+  this.Otp = await bcrypt.hash(otp.toString(),salt);
+
+  this.OtpExpire = Date.now() + 5 * 60 * 1000;
+  return otp;
+}
+
+// Compare Otp
+userSchema.methods.compareOtp = async function (otp) {
+  let result = await bcrypt.compare(otp, this.Otp);
+  return result;
 };
 
 // Generating Password Reset Token

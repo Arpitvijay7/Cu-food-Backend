@@ -8,7 +8,115 @@ const sendEmail = require("../utils/sendEmail");
 const Shop = require("../models/Shop");
 const Razorpay = require("razorpay");
 const axios = require("axios").default;
+const fast2sms = require("fast2sms");
+var admin = require("firebase-admin");
 
+var serviceAccount = require("../config/serviceAccountKey.json");
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+});
+
+exports.phoneAuth = catchAsyncError(async (req, res, next) => {
+  const user = req.user;
+
+  const verified = req.user.isPhoneVerified;
+  if (verified) {
+    return next(new ErrorHandler(`Phone number is already verified`, 400));
+  }
+
+  try {
+    const phoneNumber = req.body.phoneNumber;
+    const Otp = await user.getOtp();
+    user.phoneNo = phoneNumber;
+    await user.save({ validateBeforeSave: false });
+
+    const url = `https://www.fast2sms.com/dev/bulkV2?authorization=${process.env.SMS_AUTH_KEY}&route=otp&variables_values=${Otp}&flash=0&numbers=${phoneNumber}`;
+
+    const response = await axios.get(url);
+
+    if (response.data.status_code === 411) {
+      user.Otp = undefined;
+      user.OtpExpire = undefined;
+      user.phoneNo = undefined;
+      await user.save();
+      return next(new ErrorHandler(`Please enter a valid phone number`, 400));
+    }
+
+    res.status(200).json({
+      response: response.data,
+      Otp,
+    });
+  } catch (error) {
+    user.Otp = undefined;
+    user.OtpExpire = undefined;
+    user.phoneNo = undefined;
+    await user.save();
+
+    return next(new ErrorHandler(error.message, 400));
+  }
+});
+
+exports.OtpVerify = catchAsyncError(async (req, res, next) => {
+  const otp = req.body.otp;
+
+  if (req.user.isPhoneVerified) {
+    return next(new ErrorHandler(`Phone number is already verified`, 400));
+  }
+
+  if (!otp) {
+    return next(new ErrorHandler(`Please enter otp`, 400));
+  }
+
+  if (req.user.OtpExpire < Date.now()) {
+    req.user.Otp = undefined;
+    req.user.OtpExpire = undefined;
+    req.user.phoneNo = undefined;
+    req.user.isPhoneVerified = false;
+
+    await req.user.save();
+    return next(new ErrorHandler(`Otp expired`, 400));
+  }
+
+  const Result = await req.user.compareOtp(otp.toString());
+
+  if (Result == true) {
+    req.user.isPhoneVerified = true;
+    req.user.Otp = undefined;
+    req.user.OtpExpire = undefined;
+
+    await req.user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Phone number verified",
+    });
+  } else {
+    req.user.isPhoneVerified = false;
+
+    await req.user.save();
+
+    return next(new ErrorHandler(`Invalid Otp`, 400));
+  }
+});
+
+exports.phoneAuthVerify = catchAsyncError(async (req, res) => {
+  const verificationCode = req.body.verificationCode;
+
+  try {
+    const credential = await confirmationResult.confirm(verificationCode);
+
+    const idToken = await admin.auth().currentUser.getIdToken();
+
+    res.status(200).send({
+      idToken,
+    });
+  } catch (error) {
+    res.status(400).send({
+      error: error.message,
+    });
+  }
+});
 // Register a new user
 exports.registerUser = catchAsyncError(async (req, res, next) => {
   let { email, password, captchaValue } = req.body;
@@ -479,4 +587,3 @@ exports.vendorWithdrawalRequest = catchAsyncError(async (req, res, next) => {
   //   res.status(500).json({ error: "Withdrawal request failed" });
   // }
 });
-

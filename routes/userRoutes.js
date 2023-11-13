@@ -16,10 +16,22 @@ const {
   vendorWithdrawalRequest,
   resetPassword,
   verifyEmail,
+  phoneAuth,
+  phoneAuthVerify,
+  OtpVerify
 } = require("../controller/userController");
-const {Loginlimiter, registerlimiter,SignUplimiter,forgotPasswordlimiter} = require("../middleware/ratelimiter");
+const {
+  Loginlimiter,
+  registerlimiter,
+  SignUplimiter,
+  forgotPasswordlimiter,
+} = require("../middleware/ratelimiter");
 
 const router = express.Router();
+
+router.route("/phoneAuth").post(isAuthenticatedUser,phoneAuth);
+
+router.route("/OtpVerify").post(isAuthenticatedUser,OtpVerify);
 
 router.route("/new").post(registerUser);
 
@@ -34,14 +46,14 @@ router
 router.get(
   "/googleAuth",
   passport.authenticate("google", {
-    scope: ["profile","email"],
+    scope: ["profile", "email"],
   })
 );
 
 router.get(
   "/googlelogin",
   passport.authenticate("google", {
-    scope: ["profile","email"],
+    scope: ["profile", "email"],
     successRedirect: process.env.FRONTEND_URL,
   })
 );
@@ -63,7 +75,6 @@ router.route("/password/forgot").post(forgotPasswordlimiter, forgotPassword);
 router.route("/password/reset/:token").put(resetPassword);
 
 router.route("/verify/:token").put(verifyEmail);
-
 
 router
   .route("/vendorWithdrwal")
