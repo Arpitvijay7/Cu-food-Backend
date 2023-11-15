@@ -18,8 +18,9 @@ admin.initializeApp({
 });
 
 exports.phoneAuth = catchAsyncError(async (req, res, next) => {
+  const user = req.user;
+
   try {
-    const user = req.user;
     const phoneNumber = req.body.phoneNumber;
 
     const verified = req.user.isPhoneVerified;
