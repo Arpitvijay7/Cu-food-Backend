@@ -29,7 +29,6 @@ exports.phoneAuth = catchAsyncError(async (req, res, next) => {
     }
 
     const Otp = await user.getOtp();
-    user.phoneNo = phoneNumber;
     await user.save({ validateBeforeSave: false });
 
     const url = `https://www.fast2sms.com/dev/bulkV2?authorization=${process.env.SMS_AUTH_KEY}&route=otp&variables_values=${Otp}&flash=0&numbers=${phoneNumber}`;
@@ -39,7 +38,6 @@ exports.phoneAuth = catchAsyncError(async (req, res, next) => {
     if (response.data.status_code === 411) {
       user.Otp = undefined;
       user.OtpExpire = undefined;
-      user.phoneNo = undefined;
       await user.save();
       return next(new ErrorHandler(`Please enter a valid phone number`, 400));
     }
@@ -51,7 +49,6 @@ exports.phoneAuth = catchAsyncError(async (req, res, next) => {
   } catch (error) {
     user.Otp = undefined;
     user.OtpExpire = undefined;
-    user.phoneNo = undefined;
     await user.save();
 
     return next(new ErrorHandler(error.message, 400));
@@ -73,8 +70,6 @@ exports.OtpVerify = catchAsyncError(async (req, res, next) => {
   if (req.user.OtpExpire < Date.now()) {
     req.user.Otp = undefined;
     req.user.OtpExpire = undefined;
-    req.user.phoneNo = undefined;
-    req.user.isPhoneVerified = false;
 
     await req.user.save();
     return next(new ErrorHandler(`Otp expired`, 400));
@@ -84,6 +79,7 @@ exports.OtpVerify = catchAsyncError(async (req, res, next) => {
 
   if (Result == true) {
     req.user.isPhoneVerified = true;
+    req.user.phoneNo = req.body.phoneNumber;
     req.user.Otp = undefined;
     req.user.OtpExpire = undefined;
 
