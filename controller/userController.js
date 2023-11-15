@@ -61,7 +61,8 @@ exports.phoneAuth = catchAsyncError(async (req, res, next) => {
 exports.OtpVerify = catchAsyncError(async (req, res, next) => {
   const otp = req.body.otp;
 
-  if (req.user.isPhoneVerified) {
+  const verified = req.user.isPhoneVerified;
+  if (verified && req.user.phoneNo === phoneNumber) {
     return next(new ErrorHandler(`Phone number is already verified`, 400));
   }
 
