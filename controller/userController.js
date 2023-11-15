@@ -24,7 +24,7 @@ exports.phoneAuth = catchAsyncError(async (req, res, next) => {
     const phoneNumber = req.body.phoneNumber;
 
     const verified = req.user.isPhoneVerified;
-    if (verified && user.phoneNo === phoneNumber) {
+    if (verified && user.phoneNo == phoneNumber) {
       return next(new ErrorHandler(`Phone number is already verified`, 400));
     }
 
@@ -44,7 +44,6 @@ exports.phoneAuth = catchAsyncError(async (req, res, next) => {
 
     res.status(200).json({
       response: response.data,
-      Otp,
     });
   } catch (error) {
     user.Otp = undefined;
@@ -59,7 +58,7 @@ exports.OtpVerify = catchAsyncError(async (req, res, next) => {
   const otp = req.body.otp;
 
   const verified = req.user.isPhoneVerified;
-  if (verified && req.user.phoneNo === req.body.phoneNumber) {
+  if (verified && req.user.phoneNo == req.body.phoneNumber) {
     return next(new ErrorHandler(`Phone number is already verified`, 400));
   }
 
