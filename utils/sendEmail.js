@@ -7,12 +7,12 @@ const UAParser = require("ua-parser-js");
 
 const sendEmail = catchAsyncError(async (options) => {
   const htmlContent = fs.readFileSync(
-    path.join(__dirname, "resetPassword.txt"),
+    path.join(__dirname, "..", "Assets", "resetPassword.txt"),
     "utf-8"
   );
 
   const VerifyhtmlContent = fs.readFileSync(
-    path.join(__dirname, "verifyEmail.txt"),
+    path.join(__dirname, "..", "Assets", "verifyEmail.txt"),
     "utf-8"
   );
 

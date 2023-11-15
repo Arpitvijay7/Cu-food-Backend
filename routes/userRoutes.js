@@ -25,13 +25,15 @@ const {
   registerlimiter,
   SignUplimiter,
   forgotPasswordlimiter,
+  Otplimiter,
+  VerifyOtplimiter
 } = require("../middleware/ratelimiter");
 
 const router = express.Router();
 
-router.route("/phoneAuth").post(isAuthenticatedUser,phoneAuth);
+router.route("/phoneAuth").post(Otplimiter,isAuthenticatedUser,phoneAuth);
 
-router.route("/OtpVerify").post(isAuthenticatedUser,OtpVerify);
+router.route("/OtpVerify").post(VerifyOtplimiter,isAuthenticatedUser,OtpVerify);
 
 router.route("/new").post(registerUser);
 

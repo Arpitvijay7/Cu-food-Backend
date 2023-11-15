@@ -7,7 +7,7 @@ const UAParser = require("ua-parser-js");
 
 const newOrder = catchAsyncError(async (options) => {
   const htmlContent = fs.readFileSync(
-    path.join(__dirname, "newOrderhtml.txt"),
+    path.join(__dirname, "..", "Assets", "newOrderhtml.txt"),
     "utf-8"
   );
 

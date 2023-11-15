@@ -18,15 +18,15 @@ admin.initializeApp({
 });
 
 exports.phoneAuth = catchAsyncError(async (req, res, next) => {
-  const user = req.user;
-
-  const verified = req.user.isPhoneVerified;
-  if (verified) {
-    return next(new ErrorHandler(`Phone number is already verified`, 400));
-  }
-
   try {
+    const user = req.user;
     const phoneNumber = req.body.phoneNumber;
+
+    const verified = req.user.isPhoneVerified;
+    if (verified && user.phoneNo === phoneNumber) {
+      return next(new ErrorHandler(`Phone number is already verified`, 400));
+    }
+  
     const Otp = await user.getOtp();
     user.phoneNo = phoneNumber;
     await user.save({ validateBeforeSave: false });

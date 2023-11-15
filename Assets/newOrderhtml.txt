@@ -28,7 +28,7 @@
         <p class="title">Order Details</p>
         <p class="info">Order Placed Date: <span id="order-date">{{Order_Date}}</span></p>
         <p class="info">Order Total Price: Rs. <span id="order-total">{{Order_Total}}</span></p>
-        <p class="info">User Phone Number: <span id="user-phone">{{User_Phone}}</span></p>
+        <a class="info" href="tel:{{User_Phone}}">User Phone Number: <span id="user-phone">{{User_Phone}}</span></a>
         <p class="info">Shop Name: <span id="shop-name">{{Shop_Name}}</span></p>
     </div>
 </body>

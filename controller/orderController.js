@@ -12,7 +12,9 @@ const newOrder = require("../utils/newOrderEmail");
 
 // Create a new order
 exports.checkout = catchAsyncError(async (req, res) => {
-  const { productId, phoneNumber, totalPrice } = req.body;
+  const { productId, totalPrice } = req.body;
+  
+  const phoneNumber = req.user.phoneNo;
 
   const instance = new Razorpay({
     key_id: process.env.RAZOR_KEY_ID,
@@ -39,7 +41,8 @@ exports.checkout = catchAsyncError(async (req, res) => {
 
 exports.verifyOrder = catchAsyncError(async (req, res) => {
   const { checkoutRes, orderId } = req.body;
-
+  
+  const phoneNumber = req.user.phoneNo;
   const hmac = crypto.createHmac("sha256", process.env.RAZOR_KEY_SECRET);
 
   hmac.update(orderId + "|" + checkoutRes.razorpay_payment_id);
@@ -130,15 +133,19 @@ exports.verifyOrder = catchAsyncError(async (req, res) => {
 });
 
 exports.orderViaCash = catchAsyncError(async (req, res,next) => {
-  const { deliveryCheckbox, address, paymentInfo, phoneNumber } = req.body;
-
+  const { deliveryCheckbox, address, paymentInfo } = req.body;
+  if (!req.user) {
+    return next(new ErrorHandler("Login first to place the order", 401));
+  }
+  
   const cart = await Cart.findOne({ userId: req.user._id });
+  
+  if (req.user.isPhoneVerified === false) {
+    return next(new ErrorHandler("Please verify your phone number", 401));
+  }
 
   if (!cart) {
     return next(new ErrorHandler(`No such cart found`, 400));
-  }
-  if (!req.user) {
-    return next(new ErrorHandler("Login first to place the order", 401));
   }
   
   const orders = await Order.find({
@@ -176,7 +183,7 @@ exports.orderViaCash = catchAsyncError(async (req, res,next) => {
     user: req.user._id,
     userName: user.name,
     paymentInfo,
-    phoneNumber,
+    phoneNumber : req.user.phoneNo,
     delivery: deliveryCheckbox,
     deliveryAddress,
     Otp,
@@ -199,7 +206,7 @@ exports.orderViaCash = catchAsyncError(async (req, res,next) => {
   await newOrder({
     date: order.createdAt,
     totalPrice: cart.totalSum,
-    phoneNo: phoneNumber,
+    phoneNo: req.user.phoneNo,
     shopName: cart.Food[0].shopName,
   });
 
