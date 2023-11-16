@@ -38,7 +38,7 @@ const Orderlimiter = rateLimit({
 
 const Otplimiter = rateLimit({
   windowMs: 24 * 60 * 60 * 1000,
-  max: 3,
+  max: 5,
   message: "Too many requests from this IP, please try again after 24 hours",
   keyGenerator: function (req) {
     return req.headers["x-forwarded-for"] || req.connection.remoteAddress;
