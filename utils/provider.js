@@ -18,7 +18,7 @@ exports.connectPassport = catchAsyncError(() => {
         const user = await User.findOne({
           googleId: profile.id,
         });
-
+        console.log(profile);
         let newUser;
         if (!user) {
           newUser = await User.create({
@@ -31,6 +31,12 @@ exports.connectPassport = catchAsyncError(() => {
 
           await newUser.save();
 
+          const newCart = await Cart.create({
+            userId: newUser._id,
+          });
+
+          await newCart.save();
+
           return done(null, newUser);
         } else {
           done(null, user);
@@ -39,40 +45,18 @@ exports.connectPassport = catchAsyncError(() => {
     )
   );
 
-  passport.serializeUser((user, done) => {
-    done(null, user.id);
-  });
-
-  passport.deserializeUser(async (id, done) => {
-    const user = await User.findById(id);
-
-    // Check if the user already has a cart
-    const existingCart = await Cart.findOne({ userId: user._id });
-    if (!existingCart) {
-      // If the user doesn't have a cart, create one
-      const newCart = await Cart.create({
-        userId: user._id,
-      });
-
-      if (!newCart) {
-        return next(new ErrorHandler(`Cart not created`, 400));
-      }
-    }
-    done(null, user);
-  });
-
 });
 
-exports.googleLogout = catchAsyncError((req, res, next) => {
-  req.session.destroy((err) => {
-    if (err) {
-      return next(err);
-    }
+// exports.googleLogout = catchAsyncError((req, res, next) => {
+//   req.session.destroy((err) => {
+//     if (err) {
+//       return next(err);
+//     }
 
-    res.clearCookie("connect.sid");
+//     res.clearCookie("connect.sid");
 
-    res.status(200).json({
-      message: `User Logged out successfully`,
-    });
-  });
-});
+//     res.status(200).json({
+//       message: `User Logged out successfully`,
+//     });
+//   });
+// });

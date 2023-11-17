@@ -349,6 +349,29 @@ exports.getAllUsers = catchAsyncError(async (req, res, next) => {
   });
 });
 
+exports.googleloginHandler = catchAsyncError(async (req, res, next) => {
+  
+  if (req.user) {
+    const user = req.user;
+
+    const token = user.getJWTToken();
+
+    // Options for Cookie
+    const options = {
+        expires : new Date (
+           Date.now() + process.env.COOKIE_EXPIRE * 24 * 60 * 60 * 1000
+        ),
+        // secure: true,
+        // sameSite: 'none',
+        httpOnly : true,
+    };
+
+    res.cookie('token',token,options).redirect(process.env.FRONTEND_URL);
+  }else {
+    return next(new ErrorHandler(`Error logging in`, 500));
+  }
+});
+
 // Logout User
 exports.logoutUser = catchAsyncError(async (req, res, next) => {
   res.cookie("token", null, {
@@ -584,3 +607,4 @@ exports.vendorWithdrawalRequest = catchAsyncError(async (req, res, next) => {
   //   res.status(500).json({ error: "Withdrawal request failed" });
   // }
 });
+

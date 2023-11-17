@@ -18,7 +18,8 @@ const {
   verifyEmail,
   phoneAuth,
   phoneAuthVerify,
-  OtpVerify
+  OtpVerify,
+  googleloginHandler,
 } = require("../controller/userController");
 const {
   Loginlimiter,
@@ -26,14 +27,16 @@ const {
   SignUplimiter,
   forgotPasswordlimiter,
   Otplimiter,
-  VerifyOtplimiter
+  VerifyOtplimiter,
 } = require("../middleware/ratelimiter");
 
 const router = express.Router();
 
-router.route("/phoneAuth").post(Otplimiter,isAuthenticatedUser,phoneAuth);
+router.route("/phoneAuth").post(Otplimiter, isAuthenticatedUser, phoneAuth);
 
-router.route("/OtpVerify").post(VerifyOtplimiter,isAuthenticatedUser,OtpVerify);
+router
+  .route("/OtpVerify")
+  .post(VerifyOtplimiter, isAuthenticatedUser, OtpVerify);
 
 router.route("/new").post(registerUser);
 
@@ -48,6 +51,7 @@ router
 router.get(
   "/googleAuth",
   passport.authenticate("google", {
+    session: false,
     scope: ["profile", "email"],
   })
 );
@@ -55,9 +59,10 @@ router.get(
 router.get(
   "/googlelogin",
   passport.authenticate("google", {
+    session: false,
     scope: ["profile", "email"],
-    successRedirect: process.env.FRONTEND_URL,
-  })
+  }),
+  googleloginHandler
 );
 
 router
@@ -68,7 +73,7 @@ router
   .route("/makeUserAdmin/:id")
   .put(isAuthenticatedUser, authorizedRoles("admin"), makeUserAdmin);
 
-router.get("/googleLogout", isAuthenticatedUser, googleLogout);
+// router.get("/googleLogout", isAuthenticatedUser, googleLogout);
 
 router.route("/logout").get(isAuthenticatedUser, logoutUser);
 

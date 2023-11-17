@@ -5,9 +5,9 @@ const User = require("../models/userModel");
 
 exports.isAuthenticatedUser = catchAsyncError(async (req, res, next) => {
   let { token } = req.cookies;
-  let googleToken = req.cookies["connect.sid"];
+  // let googleToken = req.cookies["connect.sid"];
 
-  if (!token && !googleToken) {
+  if (!token) {
     return next(
       new ErrorHandler(`You have to login to access this resource`, 400)
     );
@@ -18,7 +18,7 @@ exports.isAuthenticatedUser = catchAsyncError(async (req, res, next) => {
     req.user = await User.findById(decodedData.id);
   }
 
-  if (!googleToken && req.user.isVerified === false) {
+  if (req.user.isVerified === false) {
     return next(
       new ErrorHandler(
         `Please verify your email`,
