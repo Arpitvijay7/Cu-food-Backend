@@ -17,7 +17,19 @@ class ApiFeatures {
     this.query = this.query.find({ ...keyword });
     return this;
   }
-  
+
+  searchByCuisine() {
+    const keyword = this.queryStr.keyword
+      ? {
+          cuisinesOffered: {
+            $in: [this.queryStr.keyword],
+          },
+        }
+      : {};
+    this.query = this.query.find({ ...keyword });
+    return this;
+  }
+
   filter() {
     const queryCopy = { ...this.queryStr };
     //   Removing some fields for category
@@ -54,7 +66,7 @@ class ApiFeatures {
           },
         }
       : {};
-    this.query = this.query.find({ _id : this.menuID ,...keyword}).limit(1);
+    this.query = this.query.find({ _id: this.menuID, ...keyword }).limit(1);
     return this;
   }
 }

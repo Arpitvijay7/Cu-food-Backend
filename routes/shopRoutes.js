@@ -9,6 +9,7 @@ const {
   getVendorShop,
   changeShopStatus,
   verifyShop,
+  searchByCuisine
 } = require("../controller/shopController");
 const { isAuthenticatedUser, authorizedRoles } = require("../middleware/auth");
 const singleUpload = require("../middleware/multer");
@@ -16,6 +17,8 @@ const { registerlimiter } = require("../middleware/ratelimiter");
 const router = express.Router();
 
 router.route("/getAllShops").get(getAllshops);
+
+router.route("/searchByCuisine").get(searchByCuisine);
 
 router.route("/getMenu/:id").get(getMenu);
 
@@ -38,7 +41,7 @@ router.route("/getShopDetail/:id").get(getShopDetail);
 
 router
   .route("/updateShop/:id")
-  .post(isAuthenticatedUser, authorizedRoles("admin"), updateShop);
+  .post( updateShop);
 
 router
   .route("/getShop")

@@ -14,12 +14,12 @@ const {
 } = require("./utils/automaticClosingOpening.js");
 
 app.set('trust proxy', true);
-// const userModel = require("./models/userModel.js");
+
 const allowedOrigins = [
   "https://cufoodz.com",
   "https://www.cufoodz.com",
-   "https://vendor.cufoodz.com",
-   "https://www.vendor.cufoodz.com",
+  "https://vendor.cufoodz.com",
+  "https://www.vendor.cufoodz.com",
 ];
 
 app.use(    
@@ -48,12 +48,6 @@ app.use(
 );
 
 app.use(cookieParser());
-
-// setInterval(async () => {
-//   console.log('jsj');
-//   let user = await userModel.deleteMany({ isVerified: false });
-// }, 1000);
-
 
 // app.use(
 //   "*",

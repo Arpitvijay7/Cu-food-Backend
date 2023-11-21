@@ -21,6 +21,10 @@ const shopSchema = new mongoose.Schema({
       ref: "Food",
     },
   ],
+  cuisinesOffered: {
+    type: [String],
+    default: [],
+  },
   minDeliveryOrder: {
     type: Number,
     default: 200,

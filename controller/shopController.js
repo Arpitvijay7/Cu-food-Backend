@@ -251,3 +251,16 @@ exports.verifyShop = catchAsyncError(async (req, res, next) => {
     shop,
   });
 });
+
+exports.searchByCuisine = catchAsyncError(async (req, res, next) => {
+
+  const apiFeatures = new ApiFeatures(Shop.find({}), req.query)
+    .searchByCuisine();
+
+  const shops = await apiFeatures.query;
+
+  res.status(200).json({
+    success: true,
+    shops,
+  });
+});
