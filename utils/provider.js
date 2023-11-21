@@ -27,6 +27,7 @@ exports.connectPassport = catchAsyncError(() => {
             password: "undefined",
             googleId: profile.id,
             isVerified: true,
+            avatar: profile.photos[0].value,
           });
 
           await newUser.save();

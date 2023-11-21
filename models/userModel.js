@@ -21,6 +21,7 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  avatar : String,
   email: {
     type: String,
     required: [true, "Please Enter Your Email."],
