@@ -366,8 +366,8 @@ exports.googleloginHandler = catchAsyncError(async (req, res, next) => {
         httpOnly : true,
     };
 
-    res.cookie('token',token,options).redirect(process.env.FRONTEND_URL);
-  }else {
+    res.cookie("token", token, options).redirect(process.env.FRONTEND_URL);
+  } else {
     return next(new ErrorHandler(`Error logging in`, 500));
   }
 });
@@ -607,4 +607,3 @@ exports.vendorWithdrawalRequest = catchAsyncError(async (req, res, next) => {
   //   res.status(500).json({ error: "Withdrawal request failed" });
   // }
 });
-

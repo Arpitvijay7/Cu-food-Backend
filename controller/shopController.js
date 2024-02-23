@@ -6,7 +6,7 @@ const Food = require("../models/Food");
 const UnverifiedShop = require("../models/UnverifiedShop");
 const multer = require("multer");
 const path = require("path");
-const { dataUri, getdataUri } = require("../utils/dataUri");
+const { getdataUri } = require("../utils/dataUri");
 const cloudinary = require("cloudinary");
 const { log } = require("console");
 
@@ -102,10 +102,33 @@ exports.getShopDetail = catchAsyncError(async (req, res, next) => {
 
 // Update a Shop Detail --Admin
 exports.updateShop = catchAsyncError(async (req, res, next) => {
-  let shop = Shop.findById(req.params.id);
+  let shop = await Shop.findById(req.params.id);
 
   if (!shop) {
     return next(new ErrorHandler("Shop not found", 404));
+  }
+  if (req.file) {
+    const fileuri = getdataUri(req.file);
+    let myCloud, destroyedImg;
+
+    if (fileuri) {
+      myCloud = await cloudinary.v2.uploader.upload(fileuri.content);
+      destroyedImg = await cloudinary.uploader.destroy(shop.image.public_id);
+
+      if (!destroyedImg) {
+        return next(new ErrorHandler("Error in deleting image", 404));
+      }
+    }
+
+    img_obj = {
+      public_id: myCloud.public_id,
+      path: myCloud.secure_url,
+      contentType: req.file.mimetype,
+    };
+
+    req.body.image = img_obj;
+  } else {
+    req.body.image = shop.image;
   }
 
   shop = await Shop.findByIdAndUpdate(req.params.id, req.body, {

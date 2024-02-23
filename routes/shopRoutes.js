@@ -9,7 +9,7 @@ const {
   getVendorShop,
   changeShopStatus,
   verifyShop,
-  searchByCuisine
+  searchByCuisine,
 } = require("../controller/shopController");
 const { isAuthenticatedUser, authorizedRoles } = require("../middleware/auth");
 const singleUpload = require("../middleware/multer");
@@ -31,7 +31,7 @@ router
     createShop
   );
 
-router.route('/verifyShop/:id').get(isAuthenticatedUser, authorizedRoles("admin"), verifyShop);
+router.route("/verifyShop/:id").get(isAuthenticatedUser, verifyShop);
 
 router
   .route("/deleteShop/:id")
@@ -41,7 +41,12 @@ router.route("/getShopDetail/:id").get(getShopDetail);
 
 router
   .route("/updateShop/:id")
-  .post( updateShop);
+  .post(
+    isAuthenticatedUser,
+    authorizedRoles("admin", "vendor"),
+    singleUpload,
+    updateShop
+  );
 
 router
   .route("/getShop")
@@ -49,10 +54,18 @@ router
 
 router
   .route("/changeStatus/:id")
-  .put(isAuthenticatedUser, authorizedRoles("admin", "vendor"), changeShopStatus);
+  .put(
+    isAuthenticatedUser,
+    authorizedRoles("admin", "vendor"),
+    changeShopStatus
+  );
 
-  router
+router
   .route("/changeStatus/:id")
-  .put(isAuthenticatedUser, authorizedRoles("admin", "vendor"), changeShopStatus);
+  .put(
+    isAuthenticatedUser,
+    authorizedRoles("admin", "vendor"),
+    changeShopStatus
+  );
 
 module.exports = router;

@@ -20,6 +20,7 @@ const allowedOrigins = [
   "https://www.cufoodz.com",
   "https://vendor.cufoodz.com",
   "https://www.vendor.cufoodz.com",
+  "http://localhost:3000",
 ];
 
 app.use(    
