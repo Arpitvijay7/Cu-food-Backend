@@ -18,7 +18,6 @@ exports.connectPassport = catchAsyncError(() => {
         const user = await User.findOne({
           googleId: profile.id,
         });
-        console.log(profile);
         let newUser;
         if (!user) {
           newUser = await User.create({

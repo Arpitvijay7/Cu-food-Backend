@@ -129,13 +129,11 @@ exports.registerUser = catchAsyncError(async (req, res, next) => {
 
   const role = req.query.role;
 
-  console.log(email, password);
   if (!email || !password) {
     return next(
       new ErrorHandler(`Please enter email and password to register`, 400)
     );
   }
-  console.log(role);
   if (role === "vendor") {
     vendor_account_details = {};
     vendor_account_details.accountNumber = req.body.accountNumber;
@@ -177,7 +175,6 @@ exports.registerUser = catchAsyncError(async (req, res, next) => {
       verifyEmailUrl = `https://cufoodz.com/vendor/verifyEmail?token=${verificationtoken}`;
     } else {
       verifyEmailUrl = `${req.protocol}://localhost:3000/vendor/verifyEmail?token=${verificationtoken}`;
-      console.log(verifyEmailUrl);
     }
   }
 
@@ -213,7 +210,6 @@ exports.verifyEmail = catchAsyncError(async (req, res, next) => {
 
   const user = await User.findOne({ EmailVerificationToken });
 
-  console.log(user);
   if (!user) {
     return next(
       new ErrorHandler(`Verification Link either invalid or expired`, 400)
@@ -242,7 +238,6 @@ exports.verifyEmail = catchAsyncError(async (req, res, next) => {
   });
 
   if (!cart) {
-    console.log("cart error");
     return next(new ErrorHandler(`Cart not created`, 400));
   }
 
@@ -274,9 +269,8 @@ exports.loginUser = catchAsyncError(async (req, res, next) => {
       new ErrorHandler(`Please enter a valid email or password`, 401)
     );
   }
-  console.log(user);
   const isPasswordMatched = await user.comparePassword(password);
-  console.log(isPasswordMatched);
+
   if (!isPasswordMatched) {
     return next(new ErrorHandler("Invalid Email or Password", 401));
   }

@@ -31,7 +31,7 @@ router
     createShop
   );
 
-router.route("/verifyShop/:id").get(isAuthenticatedUser, verifyShop);
+router.route("/verifyShop/:id").get(isAuthenticatedUser, authorizedRoles("admin"),verifyShop);
 
 router
   .route("/deleteShop/:id")

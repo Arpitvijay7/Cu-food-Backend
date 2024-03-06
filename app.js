@@ -20,14 +20,12 @@ const allowedOrigins = [
   "https://www.cufoodz.com",
   "https://vendor.cufoodz.com",
   "https://www.vendor.cufoodz.com",
-  "http://localhost:3000",
 ];
 
 app.use(    
   "*",
   cors({
     origin: function (origin, callback) {
-      // console.log(origin);
       // if (origin === undefined) return callback(new Error("Not allowed"), false);
       if (!origin) return callback(null, true);
       if (allowedOrigins.indexOf(origin) === -1) {
@@ -49,14 +47,6 @@ app.use(
 );
 
 app.use(cookieParser());
-
-// app.use(
-//   "*",
-//   cors({
-//     origin: 'https://www.cufoodz.com',
-//     credentials: true,
-//   })
-// );
 
 app.use(
   session({

@@ -12,7 +12,6 @@ exports.registerToken = catchAsyncError(async (req, res, next) => {
   });
 
   if (UserPermissions) {
-    console.log("Hello");
     res.status(200).json({
       success: true,
       message: "Token already registered",
@@ -33,7 +32,6 @@ exports.registerToken = catchAsyncError(async (req, res, next) => {
 
   // sendPushNotification(user, "Cu", "Welcome to Cu Food");
   // console.log("Push Notification:- " + pushNotification);
-  console.log("dcdcsdcs");
 
   res.status(200).json({
     success: true,

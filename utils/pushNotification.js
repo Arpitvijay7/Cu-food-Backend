@@ -6,8 +6,6 @@ const PushNotification = require("../models/PushNotification");
 
 exports.sendPushNotification = async (userId, message ,body) => {
   try {
-    console.log("User Id:- " + userId);
-    console.log("message:- " + message);
 
     fs.readFile(
       path.join(__dirname, "../FireBaseConfig.json"),

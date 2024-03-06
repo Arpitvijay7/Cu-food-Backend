@@ -231,7 +231,6 @@ exports.replaceFromCart = catchAsyncError(async (req, res, next) => {
   const food = await Food.findById(req.params.id);
   const shop = await Shop.findById(food.shop);
 
-  console.log(shop);
   const deliveryPrice = shop.deliveryPrice;
   const freeDeliveryUpto = shop.minDeliveryOrder;
   if (!food) {

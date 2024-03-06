@@ -56,6 +56,16 @@ exports.getAllshops = catchAsyncError(async (req, res, next) => {
     .search()
 
   let shops = await apiFeatures.query;
+  let newShops = [];
+
+  for(let i = 0 ;i < shops.length ;i++) {
+    if (shops[i].status === 'open') newShops.push(shops[i]);
+  }
+  for(let i = 0 ;i < shops.length ;i++) {
+    if (shops[i].status === 'closed') newShops.push(shops[i]);
+  }  
+
+  shops = newShops;
 
   res.status(201).json({
     success: true,
@@ -238,7 +248,6 @@ exports.changeShopStatus = catchAsyncError(async (req, res, next) => {
 
 exports.verifyShop = catchAsyncError(async (req, res, next) => {
   const id = req.params.id;
-  console.log(id);
   let Unveriedshop = await UnverifiedShop.findOne({ vendor: id });
 
   if (!Unveriedshop) {

@@ -14,7 +14,6 @@ exports.addFoodItem = catchAsyncError(async (req, res, next) => {
 
   if (!req.file) {
     return next(
-      console.log("Wroung image type"),
       new ErrorHandler(
         `UnSupported Type:-  Only jpeg jpg and png images are supported `,
         404
